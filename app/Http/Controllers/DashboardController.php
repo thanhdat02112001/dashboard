@@ -128,14 +128,8 @@ class DashboardController extends Controller
                         'name' => $brand->bank_code,
                         'data' => [$percent_success, $percent_cancel, $percent_fail, 100 - ($percent_cancel + $percent_success +$percent_fail)]
                     ];
-                } else {
-                    $data = [
-                        'name' => $brand->bank_code,
-                        'data' => [0,0,0,0]
-                    ];
+                    array_push($datas, $data);
                 }
-
-                array_push($datas, $data);
             }
         }
         return ['categories' => $brand_categories, 'data' => $datas];
