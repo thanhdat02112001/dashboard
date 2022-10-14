@@ -1,0 +1,78 @@
+{
+  "_from": "ladda",
+  "_id": "ladda@2.0.3",
+  "_inBundle": false,
+  "_integrity": "sha512-b/m5BP2M2s37GkwEMBJV6mnvLsFUUo1pdn13n6x18bPEFFf+zEl5TmeeqYXmUjgkEEugICe+dTvmciteJ+CGcQ==",
+  "_location": "/ladda",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "ladda",
+    "name": "ladda",
+    "escapedName": "ladda",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ladda/-/ladda-2.0.3.tgz",
+  "_shasum": "ec1cefcf6bca813bcebaddeeea6aa654dcfdf696",
+  "_spec": "ladda",
+  "_where": "/home/dat/dashboard",
+  "author": {
+    "name": "Hakim El Hattab",
+    "email": "hakim.elhattab@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/hakimel/Ladda/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Theodore Brown",
+      "email": "theodorejb@outlook.com"
+    }
+  ],
+  "dependencies": {
+    "spin.js": "^4.1.1"
+  },
+  "deprecated": false,
+  "description": "Buttons with built-in loading indicators",
+  "devDependencies": {
+    "grunt": "^1.4.1",
+    "grunt-contrib-connect": "^3.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-jshint": "^3.1.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-sass": "^3.1.0",
+    "rollup": "^2.60.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "sass": "^1.44.0"
+  },
+  "files": [
+    "css/*.scss",
+    "dist/*.css",
+    "js/ladda.d.ts",
+    "js/ladda.js"
+  ],
+  "homepage": "https://lab.hakim.se/ladda/",
+  "license": "MIT",
+  "main": "./js/ladda.js",
+  "name": "ladda",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hakimel/Ladda.git"
+  },
+  "scripts": {
+    "prepare": "grunt --gruntfile Gruntfile.cjs && rollup -c",
+    "start": "grunt serve --gruntfile Gruntfile.cjs",
+    "test": "grunt jshint --gruntfile Gruntfile.cjs"
+  },
+  "type": "module",
+  "types": "./js/ladda.d.ts",
+  "version": "2.0.3"
+}

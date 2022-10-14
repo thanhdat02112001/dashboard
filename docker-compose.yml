@@ -1,0 +1,39 @@
+version: '3.4'
+
+
+services:
+  mysql:
+    image: mysql:5.6
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: stg-report
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8081:80
+    # links:
+    #   - mysql
+    environment:
+      - PMA_ARBITRARY=1
+  web:
+    tty: true
+    stdin_open: true
+    command: sh /docker-entrypoint.sh
+    build: ./docker
+    links:
+      - mysql
+    ports:
+      - 8080:8080
+    environment:
+      APP_DEBUG: 'true'
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app/vendor/bin
+    volumes:
+      - .:/app:cached
+      - ./docker/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./docker/supervisor/:/etc/supervisor.d/
+      - composer_caches:/app/vendor
+volumes:
+  composer_caches:
+  mysql-data:

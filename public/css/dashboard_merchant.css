@@ -1,0 +1,303 @@
+
+.wrapper-content {
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+#pie-chart-transaction-date, #refresh-pie-chart {
+    height:  2.05rem;
+}
+#pie-chart-transaction-date:read-only,
+#line-chart-transaction-date,
+#pie-chart-error-code-rate-date{
+    background-color: #FFFFFF !important;
+}
+
+.form-control:disabled, .form-control[readonly] {
+    background-color: #fff !important;
+}
+.total-trans {
+    /*border: 1px solid red;*/
+    background-color: white;
+    border-radius: 10px;
+    height: 120px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    color: #4196D2;
+}
+.total-trans .text-figure{
+    font-size: 22px;
+}
+.total-trans .icon-dollar {
+    font-size: 25px;
+}
+.total-trans .text-head {
+    font-size: 20px;
+}
+.total-trans .text-head span{
+    font-weight: 700;
+}
+.total-trans .text-gmv{
+    font-size: 16px;
+    margin-top: 15px;
+}
+.total-trans .section-progress{
+    padding-top: 10px;
+}
+.chart-left {
+    padding: 15px 10px 15px 0px;
+}
+.chart-left::before{
+    content: '';
+    position: absolute;
+    background-color: white;
+    width: 95%;
+    /*height: 85%;*/
+    border-top: 1px dotted gray;
+    top: 0;
+    left: 15px;
+}
+
+.chart-right::before{
+    content: '';
+    position: absolute;
+    background-color: white;
+    width: 95%;
+    /*height: 85%;*/
+    border-top: 1px dotted gray;
+    top: 0;
+    right: 15px;
+}
+
+.chart-right {
+    padding: 15px 0px 15px 10px;
+}
+
+.chart-left::after{
+    content: '';
+    position: absolute;
+    background-color: white;
+    height: 100%;
+    border-left: 1px dotted gray;
+    right: 0;
+    top: 15px;
+}
+
+.chart-column {
+    margin-top: 20px;
+    padding-top: 15px;
+}
+
+
+/*CICRLE PROGRESS BAR*/
+
+
+.pc3 {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+.pc3 svg:before {
+    color: #dfd0d8;
+    display: block;
+}
+.pc3 svg {
+    width: 90px;
+    height: 90px;
+    transform: rotate(-90deg);
+}
+.pc3 svg .percent-circle-inner {
+    fill: #dfd0d8;
+    stroke: #0da7f0;
+    stroke-width: 10px;
+    stroke-dasharray: 0 376.9908px;
+    transition: stroke-dasharray 0.6s ease-out;
+}
+.pc3:after {
+    content: attr(data-text);
+    display: block;
+    width: 80px;
+    height: 80px;
+    background: #ffffff;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    border-radius: 50%;
+    color: #0da7f0;
+    text-align: center;
+    line-height: 80px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+@media screen and (max-width: 1366px) {
+    .total-trans {
+        height: 100px;
+    }
+    .total-trans .section-progress{
+        padding-top: 5px;
+    }
+    .total-trans .text-gmv{
+        font-size: 16px;
+        margin-top: 10px;
+    }
+    .total-trans .text-head {
+        font-size: 12px;
+        padding: 0px 0px 10px 0px;
+    }
+
+    .total-trans .text-figure{
+        font-size: 15px;
+    }
+
+    .pc3 {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+    }
+    .pc3 svg:before {
+        color: #dfd0d8;
+        display: block;
+    }
+    .pc3 svg {
+        width: 70px;
+        height: 70px;
+        transform: rotate(-90deg);
+    }
+    .pc3 svg .percent-circle-inner {
+        fill: #dfd0d8;
+        stroke: #0da7f0;
+        stroke-width: 10px;
+        stroke-dasharray: 0 376.9908px;
+        transition: stroke-dasharray 0.6s ease-out;
+    }
+    .pc3:after {
+        content: attr(data-text);
+        display: block;
+        width: 60px;
+        height: 60px;
+        background: #ffffff;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        border-radius: 50%;
+        color: #0da7f0;
+        text-align: center;
+        line-height: 60px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.bg-progress {
+    background-color: #4196D2 !important;
+}
+.select2-container .select2-selection--single {
+    height: 38px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px !important;
+}
+#page-wrapper .payment-method-select,
+#page-wrapper .bankroll-select,
+#page-wrapper .date-input,
+#page-wrapper .select-merchant
+{
+    height: 38px;
+    border-radius: 5px;
+    background-color: #13173c !important;
+    border: 1px solid #59595a;
+    color: white;
+}
+.chart-body {
+    position: relative;
+}
+.chart-body .select-time-transaction-grow-chart {
+    position: absolute;
+    top: 20px;
+    right: 1%;
+    z-index: 1;
+}
+.square-box-info {
+    border-radius: 5px;
+    height: 140px;
+    padding: 15px;
+    position: relative;
+}
+#page-wrapper {
+    background-color: #272c49;
+}
+.square-box-info {
+    background-color: #13173c;
+}
+.total-transaction-img {
+    height: 24px;
+    width: 24px;
+}
+.up-img {
+    width: 28px;
+    height: 24px;
+}.box-info-title {
+    font-size: 12px;
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    font-weight: bold;
+}
+.box-info-volume {
+    font-size: 24px;
+    font-weight: bolder;
+}
+.box-info-percent {
+    font-weight: bold;
+    display: inline-block;
+    margin-left: 6px;
+}
+.increase {
+    color: #8dff99;
+}
+.decrease {
+    color: #a5251e;
+}
+.select2-selection.select2-selection--single {
+    background-color: #13173c !important;
+    border: 1px solid #59595a !important;
+    color: white !important;
+}
+.select-time-transaction-grow-chart select,
+.select-time-transaction-grow-chart option
+{
+    color: #fff;
+    background-color: #5b7d93;
+    border: none;
+}
+.footer {
+    background-color: #272c49 !important;
+    color: #999999;
+}
+.footer {
+    border: none !important;
+}
+.select2-selection__rendered,
+.select2-selection__placeholder {
+    color: white !important;
+}
+.select2-selection__clear {
+    color: white;
+    margin-top: 5px;
+}
+#gmv-invoice-img,
+#gmv-website-img
+{
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    height: 50%;
+}
