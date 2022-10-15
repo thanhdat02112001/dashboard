@@ -160,9 +160,14 @@
                             <div id="chart-pie"></div>
                         </div>
                     </div>
-                    <div class="col-lg-7">
+                    <div class="col-lg-6">
                         <figure class="highcharts-figure">
                             <div id="horizional-barchart"></div>
+                        </figure>
+                    </div>
+                    <div class="col-lg-6">
+                        <figure class="highcharts-figure">
+                            <div id="issue-bank"></div>
                         </figure>
                     </div>
                 </div>
@@ -191,82 +196,6 @@
 
     {{-- <script src="/js/dashboard_merchant.js"></script> --}}
     <script src="/js/chartdraw.js"></script>
-    <script>
-        let upImgUrl = '{{ asset('images/up.png') }}';
-        let downImgUrl = '{{ asset('images/down.png') }}';
-
-        const formatNumberWithSuffix = (number) => {
-            const ranges = [
-                { divider: 1e18 , suffix: ' E' },
-                { divider: 1e15 , suffix: ' P' },
-                { divider: 1e12 , suffix: ' T' },
-                { divider: 1e9 , suffix: ' G' },
-                { divider: 1e6 , suffix: ' M' },
-                { divider: 1e3 , suffix: ' K' }
-            ];
-
-            for (let i = 0; i < ranges.length; i++) {
-                if (number >= ranges[i].divider) {
-                    return (number / ranges[i].divider).toFixed(2) + ranges[i].suffix;
-                }
-            }
-            return number.toString();
-        }
-
-        // const initElements = async () => {
-        //     $('input[name="daterange"]').daterangepicker(
-        //         {
-        //             opens: 'left',
-        //             locale: {
-        //                 format: 'DD/MM/YYYY',
-        //                 separator: " - ",
-        //             },
-        //             maxDate: moment(),
-        //             ranges: {
-        //                 'Today': [moment(), moment()],
-        //                 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        //                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        //                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        //                 'This Month': [moment().startOf('month'), moment().endOf('month')],
-        //                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        //             }
-        //         }
-        //     );
-
-        //     $('#select-merchant-summary').select2({
-        //         width: '100%',
-        //         allowClear: true,
-        //         placeholder: 'All Merchant'
-        //     })
-        // }
-
-        // const changeMerchant = () => {
-        //     summary.onChange()
-        //     columnChart.onChange('column-chart')
-        // }
-
-        // const changeDate = () => {
-        //     summary.onChange()
-        // }
-
-        // const changePaymentMethod = () => {
-        //     summary.onChange()
-        //     columnChart.onChange('column-chart')
-        // }
-
-        // const changeBankroll = () => {
-        //     summary.onChange()
-        //     columnChart.onChange('column-chart')
-        // }
-
-        // $(document).ready(function() {
-        //     initElements().then(() => {
-        //         $('#select-payment-method-summary').trigger('change')
-        //     })
-        // });
-        // Data retrieved from https://netmarketshare.com/
-
-        // Data retrieved from https://netmarketshare.com/
-
-    </script>
+    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
+    <script src="https://code.highcharts.com/modules/treemap.js"></script>
 @endsection

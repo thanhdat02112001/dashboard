@@ -1,7 +1,7 @@
 $.ajax({
     type: 'GET',
     url: '/gmvgrowth',
-    success:function(res) {
+    success: function(res) {
         Highcharts.chart('column-chart', {
             chart: {
                 zoomType: 'xy',
@@ -16,7 +16,7 @@ $.ajax({
             title: {
                 text: 'GMV and transaction growth chart',
                 verticalAlign: 'top',
-                style : {
+                style: {
                     fontWeight: 'bold',
                     fontSize: '16px',
                     color: '#fff',
@@ -37,15 +37,15 @@ $.ajax({
             },
             yAxis: [{ // Primary yAxis
                 labels: {
-                format: '{value}M',
+                    format: '{value}M',
 
                 },
                 title: {
-                text: 'GMV (VND)',
-                style: {
-                    color: '#fff',
-                    fontWeight: 'bold',
-                }
+                    text: 'GMV (VND)',
+                    style: {
+                        color: '#fff',
+                        fontWeight: 'bold',
+                    }
                 }
             }, { // Secondary yAxis
                 title: {
@@ -56,10 +56,10 @@ $.ajax({
                     }
                 },
                 labels: {
-                format: '{value}',
-                style: {
-                    color: Highcharts.getOptions().colors[0]
-                }
+                    format: '{value}',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
                 },
                 opposite: true
             }],
@@ -77,12 +77,12 @@ $.ajax({
                 type: 'column',
                 data: res.columns,
                 tooltip: {
-                valueSuffix: ' M'
+                    valueSuffix: ' M'
                 }
 
             }, {
                 name: 'Transactions',
-                yAxis:1,
+                yAxis: 1,
                 type: 'spline',
                 data: res.line,
             }]
@@ -94,7 +94,7 @@ $.ajax({
 $.ajax({
     type: 'GET',
     url: '/gmv-proportion',
-    success:function(res) {
+    success: function(res) {
         console.log(res)
         Highcharts.chart('chart-pie', {
             chart: {
@@ -110,7 +110,7 @@ $.ajax({
             title: {
                 text: 'The GMV Proportion',
                 verticalAlign: 'top',
-                style : {
+                style: {
                     fontWeight: 'bold',
                     fontSize: '16px',
                     color: '#fff',
@@ -118,26 +118,26 @@ $.ajax({
                 y: 20,
             },
             accessibility: {
-              announceNewData: {
-                enabled: true
-              },
-              point: {
-                valueSuffix: '%'
-              }
+                announceNewData: {
+                    enabled: true
+                },
+                point: {
+                    valueSuffix: '%'
+                }
             },
 
             plotOptions: {
-              series: {
-                dataLabels: {
-                  enabled: true,
-                  format: '{point.name}: {point.y:.1f}%'
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}: {point.y:.1f}%'
+                    }
                 }
-              }
             },
 
             tooltip: {
-              headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-              pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
             },
             legend: {
                 layout: 'horizontal',
@@ -148,13 +148,11 @@ $.ajax({
                     color: '#fff'
                 }
             },
-            series: [
-              {
+            series: [{
                 name: "GMV Proportion",
                 colorByPoint: true,
                 data: res
-              }
-            ],
+            }],
         });
     }
 })
@@ -162,11 +160,11 @@ $.ajax({
 $.ajax({
     type: 'get',
     url: '/trans-status-of-brands',
-    success:function(res) {
+    success: function(res) {
         Highcharts.chart('horizional-barchart', {
             chart: {
-              type: 'bar',
-              marginBottom: 70,
+                type: 'bar',
+                marginBottom: 70,
                 height: (10 / 16 * 120) + '%',
                 style: {
                     fontFamily: 'Open Sans'
@@ -175,34 +173,53 @@ $.ajax({
                 backgroundColor: '#13173c',
             },
             title: {
-              text: 'Transaction status by issuing bank and card bank',
-              verticalAlign: 'top',
-                style : {
+                text: 'Transaction status by issuing bank and card bank',
+                verticalAlign: 'top',
+                style: {
                     fontWeight: 'bold',
                     fontSize: '16px',
                     color: '#fff',
                 },
             },
             xAxis: {
-              categories: res.categories
+                categories: res.categories
             },
             yAxis: {
-              min: 0,
-              title: {
-                text: 'Goals'
-              }
+                min: 0,
+                title: {
+                    text: 'Goals'
+                }
             },
             legend: {
-              reversed: true
+                reversed: true
             },
             plotOptions: {
-              series: {
-                stacking: 'normal'
-              }
+                series: {
+                    stacking: 'normal'
+                }
             },
             series: res.data
-          });
+        });
     }
 })
 
-
+$.ajax({
+    type: 'get',
+    url: '/issueBank',
+    success: function(res) {
+        Highcharts.chart('issue-bank', {
+            colorAxis: {
+                minColor: '#FFFFFF',
+                maxColor: Highcharts.getOptions().colors[0]
+            },
+            series: [{
+                type: 'treemap',
+                layoutAlgorithm: 'squarified',
+                data: res
+            }],
+            title: {
+                text: 'Transaction status by issuing bank and card bank'
+            }
+        });
+    }
+})

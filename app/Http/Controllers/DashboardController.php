@@ -134,4 +134,30 @@ class DashboardController extends Controller
         }
         return ['categories' => $brand_categories, 'data' => $datas];
     }
+
+    public function issueBank() {
+        $today =Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
+        $brands = DB::table('reports_transaction')->select("bank_code")->distinct()->get();
+        $data = [];
+        foreach ($brands as $index => $brand) {
+            if ($brand->bank_code != "") {
+                $data[$index]['name'] = $brand->bank_code; 
+                $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->sum('total_amount');
+                $data[$index]['value'] = (int)$total_trans_amount;
+            }
+        }
+
+        usort($data, function($item1, $item2)
+        {
+            return $item1['value'] < $item2['value'];
+        });
+
+        $i = 10;
+        $data = array_slice($data, 0, 10);
+        foreach($data as $index => $item) {
+            $data[$index]['colorValue'] = $i--;
+        }
+
+        return $data;
+    }
 }
