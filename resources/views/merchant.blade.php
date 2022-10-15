@@ -170,6 +170,11 @@
                             <div id="issue-bank"></div>
                         </figure>
                     </div>
+                    <div class="col-lg-6">
+                        <figure class="highcharts-figure">
+                            <div id="error-detail"></div>
+                        </figure>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-3">
@@ -198,4 +203,5 @@
     <script src="/js/chartdraw.js"></script>
     <script src="https://code.highcharts.com/modules/heatmap.js"></script>
     <script src="https://code.highcharts.com/modules/treemap.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
 @endsection

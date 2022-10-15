@@ -160,4 +160,16 @@ class DashboardController extends Controller
 
         return $data;
     }
+
+    public function errorDetail() {
+        $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+                        ->where('trans_status', '<>', 5)
+                        ->groupBy('trans_status')->get();
+        
+        $data = [];
+        foreach($status as $item) {
+            $data[] = [0, (int)$item->total];
+        }
+        return $data;
+    }
 }
