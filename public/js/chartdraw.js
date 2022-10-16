@@ -284,3 +284,95 @@ $.ajax({
         });
     }
 })
+
+
+$.ajax({
+    type: 'get',
+    url: '/rateTransaction',
+    success: function(res) {
+        var datesTotal = res.total.date,
+            datesSuccess = res.success.date,
+            datesError = res.error.date;
+        console.log(res);
+        Highcharts.chart('rate-transaction', {
+            chart: {
+                type: 'areaspline'
+            },
+            title: {
+                text: 'Moose and deer hunting in Norway, 2000 - 2021'
+            },
+            subtitle: {
+                align: 'center',
+                text: 'Source: <a href="https://www.ssb.no/jord-skog-jakt-og-fiskeri/jakt" target="_blank">SSB</a>'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 120,
+                y: 70,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF'
+            },
+            xAxis: {
+                type: 'datetime',
+                labels: {
+                    formatter: function() {
+                        return Highcharts.dateFormat('%Y-%m-%d', this.value);
+                    }
+                },
+                tickPositioner: function() {
+                    return datesTotal.map(function(date) {
+                        return Date.parse(date);
+                    });
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Quantity'
+                }
+            },
+            tooltip: {
+                shared: true,
+                headerFormat: '<b>Hunting season starting autumn {point.x}</b><br>'
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    pointStart: 2000
+                },
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                    data: (function() {
+                        return datesTotal.map(function(date, i) {
+                            return [Date.parse(date), res.total.data[i]];
+                        });
+                    })(),
+                    name: 'Total Transaction'
+                },
+                {
+                    data: (function() {
+                        return datesError.map(function(date, i) {
+                            return [Date.parse(date), res.error.data[i]];
+                        });
+                    })(),
+                    name: 'Error Transaction'
+                },
+                {
+                    data: (function() {
+                        return datesSuccess.map(function(date, i) {
+                            return [Date.parse(date), res.success.data[i]];
+                        });
+                    })(),
+                    name: 'Success Transaction'
+                },
+            ]
+        });
+    }
+})

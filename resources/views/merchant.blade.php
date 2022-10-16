@@ -170,9 +170,14 @@
                             <div id="issue-bank"></div>
                         </figure>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-12">
                         <figure class="highcharts-figure">
                             <div id="error-detail"></div>
+                        </figure>
+                    </div>
+                    <div class="col-lg-12">
+                        <figure class="highcharts-figure">
+                            <div id="rate-transaction"></div>
                         </figure>
                     </div>
                 </div>

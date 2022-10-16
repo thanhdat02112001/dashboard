@@ -7,6 +7,7 @@ use App\Models\Method;
 use App\Models\ReportTransaction;
 use DateInterval;
 use DatePeriod;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -171,5 +172,60 @@ class DashboardController extends Controller
             $data[] = [0, (int)$item->total];
         }
         return $data;
+    }
+
+    function getDatesFromRange($start, $end, $format = 'Y-m-d') {
+        $array = array();
+        $interval = new DateInterval('P1D');
+    
+        $realEnd = new DateTime($end);
+        $realEnd->add($interval);
+    
+        $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
+    
+        foreach($period as $date) { 
+            $array[] = $date->format($format); 
+        }
+    
+        return $array;
+    }
+    
+    public function rateTransaction() {
+        $formDate = date('Y-m-d', strtotime('-7 days'));
+        $toDate = date('Y-m-d', strtotime('1 days'));
+        $data = [];
+
+        $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                ->whereBetween('created_at', [$formDate, $toDate])
+                                ->groupBy('date')->get();
+        foreach($totalTransactions as $item) {
+            $data['total']['data'][] = $item->total;
+            $data['total']['date'][] = $item->date;
+        }   
+        $data['total']['name'] = 'Total transaction';
+
+        $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                ->where('trans_status', '<>', 5)
+                                ->whereBetween('created_at', [$formDate, $toDate])
+                                ->groupBy('date')->get();
+        foreach($errorTransactions as $item) {
+            $data['error']['data'][] = $item->total;
+            $data['error']['date'][] = $item->date;
+        }   
+        $data['error']['name'] = 'Error transaction';
+
+        $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                ->where('trans_status', 5)
+                                ->whereBetween('created_at', [$formDate, $toDate])
+                                ->groupBy('date')->get();
+        
+        foreach($successTransactions as $item) {
+            $data['success']['data'][] = $item->total;
+            $data['success']['date'][] = $item->date;
+        }   
+        $data['success']['name'] = 'Success transaction';
+
+        return $data;
+        
     }
 }

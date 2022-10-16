@@ -28,4 +28,5 @@ Route::get('/gmv-proportion', [DashboardController::class, 'gmvProportion']);
 Route::get('trans-status-of-brands', [DashboardController::class, 'transStatusOfBrand']);
 Route::get('/issueBank', [DashboardController::class, 'issueBank']);
 Route::get('/errorDetail', [DashboardController::class, 'errorDetail']);
+Route::get('/rateTransaction', [DashboardController::class, 'rateTransaction']);
 
