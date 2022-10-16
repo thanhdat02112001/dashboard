@@ -16,10 +16,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $merchants = DB::table('merchants')->select('name')->get()->toArray();
+        $merchants = DB::table('merchants')->select('id', 'name')->get()->toArray();
         $merchantData = [];
         foreach ($merchants as $merchant) {
-            array_push($merchantData, $merchant->name);
+            $merchantData[$merchant->id] = $merchant->name;
         }
 
         $methods = Method::all()->toArray();
@@ -163,9 +163,17 @@ class DashboardController extends Controller
     }
 
     public function errorDetail() {
-        $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+        if(isset(request()->merchanId) && request()->merchanId != 'null') {
+            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+                        ->where('trans_status', '<>', 5)
+                        ->where('merchant_id', request()->merchanId)
+                        ->groupBy('trans_status')->get();
+        }
+        else {
+            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where('trans_status', '<>', 5)
                         ->groupBy('trans_status')->get();
+        }
         
         $data = [];
         foreach($status as $item) {

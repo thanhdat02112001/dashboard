@@ -285,94 +285,71 @@ $.ajax({
     }
 })
 
+function errorDetail(value = null) {
+    $.ajax({
+        type: 'get',
+        url: '/errorDetail?merchanId=' + value,
+        success: function(res) {
+            console.log(res);
+            Highcharts.chart('error-detail', {
+                chart: {
+                    type: 'columnrange',
+                    inverted: true
+                },
 
-$.ajax({
-    type: 'get',
-    url: '/rateTransaction',
-    success: function(res) {
-        var datesTotal = res.total.date,
-            datesSuccess = res.success.date,
-            datesError = res.error.date;
-        console.log(res);
-        Highcharts.chart('rate-transaction', {
-            chart: {
-                type: 'areaspline'
-            },
-            title: {
-                text: 'Moose and deer hunting in Norway, 2000 - 2021'
-            },
-            subtitle: {
-                align: 'center',
-                text: 'Source: <a href="https://www.ssb.no/jord-skog-jakt-og-fiskeri/jakt" target="_blank">SSB</a>'
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'left',
-                verticalAlign: 'top',
-                x: 120,
-                y: 70,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF'
-            },
-            xAxis: {
-                type: 'datetime',
-                labels: {
-                    formatter: function() {
-                        return Highcharts.dateFormat('%Y-%m-%d', this.value);
+                accessibility: {
+                    description: 'Image description: A column range chart compares the monthly temperature variations throughout 2017 in Vik I Sogn, Norway. The chart is interactive and displays the temperature range for each month when hovering over the data. The temperature is measured in degrees Celsius on the X-axis and the months are plotted on the Y-axis. The lowest temperature is recorded in March at minus 10.2 Celsius. The lowest range of temperatures is found in December ranging from a low of minus 9 to a high of 8.6 Celsius. The highest temperature is found in July at 26.2 Celsius. July also has the highest range of temperatures from 6 to 26.2 Celsius. The broadest range of temperatures is found in May ranging from a low of minus 0.6 to a high of 23.1 Celsius.'
+                },
+
+                title: {
+                    text: 'Total error of system'
+                },
+
+                subtitle: {
+                    text: ''
+                },
+
+                xAxis: {
+                    categories: ['Error 1', 'Error 2', 'Error 3', 'Error 4', 'Error 5', 'Error 6',
+                        'Error 7', 'Error 8'
+                    ]
+                },
+
+                yAxis: {
+                    title: {
+                        text: 'Number of errors'
                     }
                 },
-                tickPositioner: function() {
-                    return datesTotal.map(function(date) {
-                        return Date.parse(date);
-                    });
-                }
-            },
-            yAxis: {
-                title: {
-                    text: 'Quantity'
-                }
-            },
-            tooltip: {
-                shared: true,
-                headerFormat: '<b>Hunting season starting autumn {point.x}</b><br>'
-            },
-            credits: {
-                enabled: false
-            },
-            plotOptions: {
-                series: {
-                    pointStart: 2000
+
+                tooltip: {
+                    valueSuffix: 'error'
                 },
-                areaspline: {
-                    fillOpacity: 0.5
-                }
-            },
-            series: [{
-                    data: (function() {
-                        return datesTotal.map(function(date, i) {
-                            return [Date.parse(date), res.total.data[i]];
-                        });
-                    })(),
-                    name: 'Total Transaction'
+
+                plotOptions: {
+                    columnrange: {
+                        dataLabels: {
+                            enabled: true,
+                            format: '{y} errors'
+                        }
+                    }
                 },
-                {
-                    data: (function() {
-                        return datesError.map(function(date, i) {
-                            return [Date.parse(date), res.error.data[i]];
-                        });
-                    })(),
-                    name: 'Error Transaction'
+
+                legend: {
+                    enabled: false
                 },
-                {
-                    data: (function() {
-                        return datesSuccess.map(function(date, i) {
-                            return [Date.parse(date), res.success.data[i]];
-                        });
-                    })(),
-                    name: 'Success Transaction'
-                },
-            ]
-        });
-    }
-})
+
+                series: [{
+                    name: 'Error Detail',
+                    data: res
+                }]
+
+            });
+        }
+    })
+}
+
+errorDetail();
+
+function changeMerchant(sel) {
+    errorDetail(sel.value);
+}

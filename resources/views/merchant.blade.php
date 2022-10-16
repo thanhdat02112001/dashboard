@@ -20,7 +20,7 @@
                     <div class="col-lg-7">
                         <div class="row">
                             <div class="col-lg-6">
-                                {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant', 'placeholder' => 'All Merchant', 'onChange' => 'changeMerchant()']) }}
+                                {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant', 'placeholder' => 'All Merchant', 'onChange' => 'changeMerchant(this)']) }}
                             </div>
                             <div class="col-lg-6">
                                 <input class="form-control text-center date-input"
