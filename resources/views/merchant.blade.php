@@ -24,10 +24,9 @@
                             </div>
                             <div class="col-lg-6">
                                 <input class="form-control text-center date-input"
-                                       onchange="changeDate()"
-                                       readonly="readonly"
+                                       onchange="changeDate(this)"
                                        id="select-time-summary"
-                                       type="text"
+                                       type="date"
                                        name="daterange"
                                 />
                             </div>
@@ -36,10 +35,10 @@
                     <div class="col-lg-5">
                         <div class="row">
                             <div class="col-lg-6">
-                                {{ Form::select('select-payment-method-summary', $methodData ?? [], null, ['id' => 'select-payment-method-summary', 'class' => 'form-control payment-method-select', 'placeholder' => 'All payment method', 'onchange' => "changePaymentMethod()"]) }}
+                                {{ Form::select('select-payment-method-summary', $methodData ?? [], null, ['id' => 'select-payment-method-summary', 'class' => 'form-control payment-method-select', 'placeholder' => 'All payment method', 'onchange' => "changePaymentMethod(this)"]) }}
                             </div>
                             <div class="col-lg-6">
-                                {{ Form::select('select-bankroll-summary', $gatewaysData ?? [], null, ['id' => 'select-bankroll-summary', 'class' => 'form-control bankroll-select', 'placeholder' => 'All gateway', 'onchange' => "changeBankroll()"]) }}
+                                {{ Form::select('select-bankroll-summary', $gatewaysData ?? [], null, ['id' => 'select-bankroll-summary', 'class' => 'form-control bankroll-select', 'placeholder' => 'All gateway', 'onchange' => "changeBankroll(this)"]) }}
                             </div>
                         </div>
                     </div>

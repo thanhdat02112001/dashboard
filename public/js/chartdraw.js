@@ -203,92 +203,126 @@ $.ajax({
     }
 })
 
-$.ajax({
-    type: 'get',
-    url: '/issueBank',
-    success: function(res) {
-        Highcharts.chart('issue-bank', {
-            colorAxis: {
-                minColor: '#FFFFFF',
-                maxColor: Highcharts.getOptions().colors[0]
-            },
-            series: [{
-                type: 'treemap',
-                layoutAlgorithm: 'squarified',
-                data: res
-            }],
-            title: {
-                text: 'Transaction status by issuing bank and card bank'
-            }
-        });
-    }
-})
-
-$.ajax({
-    type: 'get',
-    url: '/errorDetail',
-    success: function(res) {
-        console.log(res);
-        Highcharts.chart('error-detail', {
-            chart: {
-                type: 'columnrange',
-                inverted: true
-            },
-
-            accessibility: {
-                description: 'Image description: A column range chart compares the monthly temperature variations throughout 2017 in Vik I Sogn, Norway. The chart is interactive and displays the temperature range for each month when hovering over the data. The temperature is measured in degrees Celsius on the X-axis and the months are plotted on the Y-axis. The lowest temperature is recorded in March at minus 10.2 Celsius. The lowest range of temperatures is found in December ranging from a low of minus 9 to a high of 8.6 Celsius. The highest temperature is found in July at 26.2 Celsius. July also has the highest range of temperatures from 6 to 26.2 Celsius. The broadest range of temperatures is found in May ranging from a low of minus 0.6 to a high of 23.1 Celsius.'
-            },
-
-            title: {
-                text: 'Total error of system'
-            },
-
-            subtitle: {
-                text: ''
-            },
-
-            xAxis: {
-                categories: ['Error 1', 'Error 2', 'Error 3', 'Error 4', 'Error 5', 'Error 6',
-                    'Error 7', 'Error 8'
-                ]
-            },
-
-            yAxis: {
-                title: {
-                    text: 'Number of errors'
-                }
-            },
-
-            tooltip: {
-                valueSuffix: 'error'
-            },
-
-            plotOptions: {
-                columnrange: {
-                    dataLabels: {
-                        enabled: true,
-                        format: '{y} errors'
-                    }
-                }
-            },
-
-            legend: {
-                enabled: false
-            },
-
-            series: [{
-                name: 'Error Detail',
-                data: res
-            }]
-
-        });
-    }
-})
-
-function errorDetail(value = null) {
+function rateTransaction(query = '') {
     $.ajax({
         type: 'get',
-        url: '/errorDetail?merchanId=' + value,
+        url: '/rateTransaction' + query,
+        success: function(res) {
+            var datesTotal = res.total.date,
+                datesSuccess = res.success.date,
+                datesError = res.error.date;
+            console.log(res);
+            Highcharts.chart('rate-transaction', {
+                chart: {
+                    type: 'areaspline'
+                },
+                title: {
+                    text: 'Moose and deer hunting in Norway, 2000 - 2021'
+                },
+                subtitle: {
+                    align: 'center',
+                    text: 'Source: <a href="https://www.ssb.no/jord-skog-jakt-og-fiskeri/jakt" target="_blank">SSB</a>'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'left',
+                    verticalAlign: 'top',
+                    x: 120,
+                    y: 70,
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    labels: {
+                        formatter: function() {
+                            return Highcharts.dateFormat('%Y-%m-%d', this.value);
+                        }
+                    },
+                    tickPositioner: function() {
+                        return datesTotal.map(function(date) {
+                            return Date.parse(date);
+                        });
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Quantity'
+                    }
+                },
+                tooltip: {
+                    shared: true,
+                    headerFormat: '<b>Hunting season starting autumn {point.x}</b><br>'
+                },
+                credits: {
+                    enabled: false
+                },
+                plotOptions: {
+                    series: {
+                        pointStart: 2000
+                    },
+                    areaspline: {
+                        fillOpacity: 0.5
+                    }
+                },
+                series: [{
+                        data: (function() {
+                            return datesTotal.map(function(date, i) {
+                                return [Date.parse(date), res.total.data[i]];
+                            });
+                        })(),
+                        name: 'Total Transaction'
+                    },
+                    {
+                        data: (function() {
+                            return datesError.map(function(date, i) {
+                                return [Date.parse(date), res.error.data[i]];
+                            });
+                        })(),
+                        name: 'Error Transaction'
+                    },
+                    {
+                        data: (function() {
+                            return datesSuccess.map(function(date, i) {
+                                return [Date.parse(date), res.success.data[i]];
+                            });
+                        })(),
+                        name: 'Success Transaction'
+                    },
+                ]
+            });
+        }
+    })
+}
+
+function issueBank(query = '') {
+    $.ajax({
+        type: 'get',
+        url: '/issueBank' + query,
+        success: function(res) {
+            Highcharts.chart('issue-bank', {
+                colorAxis: {
+                    minColor: '#FFFFFF',
+                    maxColor: Highcharts.getOptions().colors[0]
+                },
+                series: [{
+                    type: 'treemap',
+                    layoutAlgorithm: 'squarified',
+                    data: res
+                }],
+                title: {
+                    text: 'Transaction status by issuing bank and card bank'
+                }
+            });
+        }
+    })
+}
+
+function errorDetail(query = '') {
+    $.ajax({
+        type: 'get',
+        url: '/errorDetail' + query,
         success: function(res) {
             console.log(res);
             Highcharts.chart('error-detail', {
@@ -348,8 +382,37 @@ function errorDetail(value = null) {
     })
 }
 
+
 errorDetail();
+issueBank();
+rateTransaction();
+
+var query = '?a=a';
 
 function changeMerchant(sel) {
-    errorDetail(sel.value);
+    query += '&merchanId=' + sel.value;
+    errorDetail(query);
+    issueBank(query);
+    rateTransaction(query);
+}
+
+function changePaymentMethod(sel) {
+    query += '&payMethod=' + sel.value;
+    errorDetail(query);
+    issueBank(query);
+    rateTransaction(query);
+}
+
+function changeBankroll(sel) {
+    query += '&gateWay=' + sel.value;
+    errorDetail(query);
+    issueBank(query);
+    rateTransaction(query);
+}
+
+function changeDate(inp) {
+    query += '&date=' + inp.value;
+    errorDetail(query);
+    issueBank(query);
+    rateTransaction(query);
 }
