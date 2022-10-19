@@ -22,7 +22,7 @@ const buildColumnChart = (idElement, dataChart) => {
         title: {
             text: 'GMV and transaction growth chart',
             verticalAlign: 'top',
-            style : {
+            style: {
                 fontWeight: 'bold',
                 fontSize: '16px',
                 color: '#fff',
@@ -39,8 +39,7 @@ const buildColumnChart = (idElement, dataChart) => {
             },
         }],
         colors: ['#159e5c', '#1174d7'],
-        yAxis: [
-            {
+        yAxis: [{
                 // Primary yAxis
                 labels: {
                     format: '{value}M',
@@ -52,9 +51,9 @@ const buildColumnChart = (idElement, dataChart) => {
                 title: {
                     text: 'GMV (VND)',
                     style: {
-                            color: '#fff',
-                            fontWeight: 'bold',
-                        }
+                        color: '#fff',
+                        fontWeight: 'bold',
+                    }
                 }
             },
             {
@@ -99,7 +98,7 @@ const columnChart = {
     updateChart: (idElement, data) => {
         buildColumnChart(idElement, data);
     },
-    filter: async (params) => {
+    filter: async(params) => {
         let response = [];
         // await $.ajax({
         //     type: "POST",
@@ -116,7 +115,7 @@ const columnChart = {
         console.log(response)
         return response;
     },
-    onChange: async (idElement) => {
+    onChange: async(idElement) => {
         let chartDataType = $('#select-chart-time').find(':selected').val();
         let merchantID = $('#select-merchant-summary').find(':selected').val() ? Number.parseInt($('#select-merchant-summary').find(':selected').val()) : 0;
         let paymentMethodID = $('#select-payment-method-summary').val() ? Number.parseInt($('#select-payment-method-summary').val()) : 0;
@@ -168,14 +167,14 @@ const columnChart = {
             },
             yAxis: 1
         })
-        console.log({dataChart})
+        console.log({ dataChart })
 
         columnChart.updateChart(idElement, dataChart);
     }
 }
 
 const summary = {
-    onChange: async () => {
+    onChange: async() => {
         if (!$('#select-time-summary').data('daterangepicker')) {
             return false
         }
@@ -197,21 +196,21 @@ const summary = {
                     case 'Today':
                         timeLabel = 'Last day';
                         break;
-                    // case 'Yesterday':
-                    //     timeLabel = 'Last 2 days';
-                    //     break;
-                    // case 'Last 7 Days':
-                    //     timeLabel = 'Last 7 days';
-                    //     break;
-                    // case 'Last 30 Days':
-                    //     timeLabel = 'Last 30 Days';
-                    //     break;
+                        // case 'Yesterday':
+                        //     timeLabel = 'Last 2 days';
+                        //     break;
+                        // case 'Last 7 Days':
+                        //     timeLabel = 'Last 7 days';
+                        //     break;
+                        // case 'Last 30 Days':
+                        //     timeLabel = 'Last 30 Days';
+                        //     break;
                     case 'This Month':
                         timeLabel = 'Last month';
                         break;
-                    // case 'Last Month':
-                    //     timeLabel = 'Last 2 months';
-                    //     break;
+                        // case 'Last Month':
+                        //     timeLabel = 'Last 2 months';
+                        //     break;
                     default:
                         timeLabel = null;
                 }
@@ -231,11 +230,11 @@ const summary = {
             from_date: startDate,
             to_date: endDate
         }
-        console.log({params})
+        console.log({ params })
         const newData = await summary.filter(params);
         summary.update(newData)
     },
-    filter: async (params) => {
+    filter: async(params) => {
         let response = null;
         // await $.ajax({
         //     type: "POST",
@@ -326,5 +325,3 @@ const summary = {
         $('#gmv-website-volume').html(formatNumberWithSuffix(Number.parseInt(websiteGMV)));
     },
 }
-
-
