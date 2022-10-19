@@ -225,7 +225,6 @@ function rateTransaction(query = '') {
             Highcharts.chart('rate-transaction', {
                 chart: {
                     type: 'areaspline',
-
                     marginBottom: 70,
                     height: (10 / 16 * 60) + '%',
                     style: {
@@ -250,8 +249,7 @@ function rateTransaction(query = '') {
                     y: 70,
                     floating: true,
                     borderWidth: 1,
-                    backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
-
+                    backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF'
                 },
                 xAxis: {
                     type: 'datetime',
@@ -273,6 +271,7 @@ function rateTransaction(query = '') {
                 },
                 tooltip: {
                     shared: true,
+                    headerFormat: '<b>Hunting season starting autumn {point.x}</b><br>'
                 },
                 credits: {
                     enabled: false
@@ -323,18 +322,15 @@ function issueBank(query = '') {
             Highcharts.chart('issue-bank', {
                 chart: {
                     backgroundColor: '#13173c',
-
                 },
                 colorAxis: {
                     minColor: '#FFFFFF',
-                    maxColor: Highcharts.getOptions().colors[0],
-
+                    maxColor: Highcharts.getOptions().colors[0]
                 },
                 series: [{
                     type: 'treemap',
                     layoutAlgorithm: 'squarified',
-                    data: res,
-
+                    data: res
                 }],
                 title: {
                     text: 'Transaction status by issuing bank and card bank',
@@ -360,7 +356,7 @@ function errorDetail(query = '') {
                     type: 'columnrange',
                     inverted: true,
                     marginBottom: 70,
-                    height: (10 / 16 * 90) + '%',
+                    height: (10 / 16 * 180) + '%',
                     style: {
                         fontFamily: 'Open Sans'
                     },
@@ -434,6 +430,20 @@ function changeMerchant(sel) {
 
 function changePaymentMethod(sel) {
     query += '&payMethod=' + sel.value;
+    errorDetail(query);
+    issueBank(query);
+    rateTransaction(query);
+}
+
+function changeBankroll(sel) {
+    query += '&gateWay=' + sel.value;
+    errorDetail(query);
+    issueBank(query);
+    rateTransaction(query);
+}
+
+function changeDate(inp) {
+    query += '&date=' + inp.value;
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);

@@ -138,27 +138,38 @@ class DashboardController extends Controller
     }
 
     public function issueBank() {
+        $conditions = [];
         if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $brands = DB::table('reports_transaction')->select("bank_code")
-                    ->where('merchant_id', request()->merchanId)
-                    ->distinct()->get();
+            $conditions[] = ['merchant_id', request()->merchanId];
         }
-        else {
-            $brands = DB::table('reports_transaction')->select("bank_code")
-                    ->distinct()->get();
+
+        if(isset(request()->payMethod) && request()->payMethod != 'null') {
+            $conditions[] = ['payment_type', request()->payMethod];
         }
+
+        if(isset(request()->gateWay) && request()->gateWay != 'null') {
+            $conditions[] = ['gateway_id', request()->gateWay];
+        }
+        if(isset(request()->date) && request()->date != 'null') {
+            $conditions[] = ['created_at',request()->date];
+            $conditions[] = ['created_at', '< =', request()->date.' 23:59:59'];
+        }
+
+        $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
+                    ->where($conditions)
+                    ->distinct()->get();
         $data = [];
+        $brands = [];
         foreach ($brands as $index => $brand) {
             if ($brand->bank_code != "") {
                 $data[$index]['name'] = $brand->bank_code;
                 if(isset(request()->merchanId) && request()->merchanId != 'null') {
                     $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)
-                                            ->where('merchant_id', request()->merchanId)->sum('total_amount');
+                                            ->where($conditions)->sum('total_amount');
                 }
                 else {
                     $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->sum('total_amount');
                 }
-
                 $data[$index]['value'] = (int)$total_trans_amount;
             }
         }
@@ -178,17 +189,29 @@ class DashboardController extends Controller
     }
 
     public function errorDetail() {
+        $conditions = [
+            ['trans_status', '<>', 5]
+        ];
         if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
-                        ->where('trans_status', '<>', 5)
-                        ->where('merchant_id', request()->merchanId)
-                        ->groupBy('trans_status')->get();
+            $conditions[] = ['merchant_id', request()->merchanId];
         }
-        else {
-            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
-                        ->where('trans_status', '<>', 5)
-                        ->groupBy('trans_status')->get();
+
+        if(isset(request()->payMethod) && request()->payMethod != 'null') {
+            $conditions[] = ['payment_type', request()->payMethod];
         }
+
+        if(isset(request()->gateWay) && request()->gateWay != 'null') {
+            $conditions[] = ['gateway_id', request()->gateWay];
+        }
+
+        if(isset(request()->date) && request()->date != 'null') {
+            $conditions[] = ['created_at', '> =', request()->date.' 00:00:00'];
+            $conditions[] = ['created_at', '< =', request()->date.' 23:59:59'];
+        }
+
+        $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+                        ->where($conditions)
+                        ->groupBy('trans_status')->get();
 
         $data = [];
         foreach($status as $item) {
@@ -196,57 +219,44 @@ class DashboardController extends Controller
         }
         return $data;
     }
-
-    function getDatesFromRange($start, $end, $format = 'Y-m-d') {
-        $array = array();
-        $interval = new DateInterval('P1D');
-
-        $realEnd = new DateTime($end);
-        $realEnd->add($interval);
-
-        $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
-
-        foreach($period as $date) {
-            $array[] = $date->format($format);
-        }
-
-        return $array;
-    }
-
     public function rateTransaction() {
         $formDate = date('Y-m-d', strtotime('-7 days'));
         $toDate = date('Y-m-d', strtotime('1 days'));
         $data = [];
 
+        $conditions = [];
+
         if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                ->whereBetween('created_at', [$formDate, $toDate])
-                                ->where('merchant_id', request()->merchanId)
-                                ->groupBy('date')->get();
-            $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                ->where('trans_status', '<>', 5)
-                                ->whereBetween('created_at', [$formDate, $toDate])
-                                ->where('merchant_id', request()->merchanId)
-                                ->groupBy('date')->get();
-            $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                ->where('trans_status', 5)
-                                ->whereBetween('created_at', [$formDate, $toDate])
-                                ->where('merchant_id', request()->merchanId)
-                                ->groupBy('date')->get();
+            $conditions[] = ['merchant_id', request()->merchanId];
         }
-        else {
-            $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                ->whereBetween('created_at', [$formDate, $toDate])
-                                ->groupBy('date')->get();
-            $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                ->where('trans_status', '<>', 5)
-                                ->whereBetween('created_at', [$formDate, $toDate])
-                                ->groupBy('date')->get();
-            $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                ->where('trans_status', 5)
-                                ->whereBetween('created_at', [$formDate, $toDate])
-                                ->groupBy('date')->get();
+
+        if(isset(request()->payMethod) && request()->payMethod != 'null') {
+            $conditions[] = ['payment_type', request()->payMethod];
         }
+
+        if(isset(request()->gateWay) && request()->gateWay != 'null') {
+            $conditions[] = ['gateway_id', request()->gateWay];
+        }
+
+        if(isset(request()->date) && request()->date != 'null') {
+            $conditions[] = ['created_at',request()->date];
+            $conditions[] = ['created_at', '< =', request()->date.' 23:59:59'];
+        }
+
+        $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                ->whereBetween('created_at', [$formDate, $toDate])
+                                ->where($conditions)
+                                ->groupBy('date')->get();
+        $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                ->whereBetween('created_at', [$formDate, $toDate])
+                                ->where('trans_status', '<>', 5)
+                                ->where($conditions)
+                                ->groupBy('date')->get();
+        $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                ->whereBetween('created_at', [$formDate, $toDate])
+                                ->where('trans_status', 5)
+                                ->where($conditions)
+                                ->groupBy('date')->get();
 
         foreach($totalTransactions as $item) {
             $data['total']['data'][] = $item->total;
@@ -259,7 +269,6 @@ class DashboardController extends Controller
             $data['error']['date'][] = $item->date;
         }
         $data['error']['name'] = 'Error transaction';
-
         foreach($successTransactions as $item) {
             $data['success']['data'][] = $item->total;
             $data['success']['date'][] = $item->date;
