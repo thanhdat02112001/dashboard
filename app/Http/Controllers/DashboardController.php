@@ -94,12 +94,13 @@ class DashboardController extends Controller
         foreach ($methods as $method) {
             $method_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
             ->where('trans_status', 5)->where('method_id', $method->id)->sum('total_amount');
-            $piedata = [
-                'name' => $method->method,
-                'y' => $method_gmv * 100 /$total_gmv,
-                'drilldown' => $method->method,
-            ];
-            array_push($pieDatas, $piedata);
+            if ($method_gmv != 0) {
+                $piedata = [
+                    'name' => $method->method,
+                    'y' => $method_gmv * 100 /$total_gmv,
+                ];
+                array_push($pieDatas, $piedata);
+            }
         }
         return $pieDatas;
     }
@@ -149,7 +150,7 @@ class DashboardController extends Controller
         $data = [];
         foreach ($brands as $index => $brand) {
             if ($brand->bank_code != "") {
-                $data[$index]['name'] = $brand->bank_code; 
+                $data[$index]['name'] = $brand->bank_code;
                 if(isset(request()->merchanId) && request()->merchanId != 'null') {
                     $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)
                                             ->where('merchant_id', request()->merchanId)->sum('total_amount');
@@ -157,7 +158,7 @@ class DashboardController extends Controller
                 else {
                     $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->sum('total_amount');
                 }
-                
+
                 $data[$index]['value'] = (int)$total_trans_amount;
             }
         }
@@ -188,7 +189,7 @@ class DashboardController extends Controller
                         ->where('trans_status', '<>', 5)
                         ->groupBy('trans_status')->get();
         }
-        
+
         $data = [];
         foreach($status as $item) {
             $data[] = [0, (int)$item->total];
@@ -199,19 +200,19 @@ class DashboardController extends Controller
     function getDatesFromRange($start, $end, $format = 'Y-m-d') {
         $array = array();
         $interval = new DateInterval('P1D');
-    
+
         $realEnd = new DateTime($end);
         $realEnd->add($interval);
-    
+
         $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
-    
-        foreach($period as $date) { 
-            $array[] = $date->format($format); 
+
+        foreach($period as $date) {
+            $array[] = $date->format($format);
         }
-    
+
         return $array;
     }
-    
+
     public function rateTransaction() {
         $formDate = date('Y-m-d', strtotime('-7 days'));
         $toDate = date('Y-m-d', strtotime('1 days'));
@@ -246,26 +247,26 @@ class DashboardController extends Controller
                                 ->whereBetween('created_at', [$formDate, $toDate])
                                 ->groupBy('date')->get();
         }
-        
+
         foreach($totalTransactions as $item) {
             $data['total']['data'][] = $item->total;
             $data['total']['date'][] = $item->date;
-        }   
+        }
         $data['total']['name'] = 'Total transaction';
 
         foreach($errorTransactions as $item) {
             $data['error']['data'][] = $item->total;
             $data['error']['date'][] = $item->date;
-        }   
+        }
         $data['error']['name'] = 'Error transaction';
-        
+
         foreach($successTransactions as $item) {
             $data['success']['data'][] = $item->total;
             $data['success']['date'][] = $item->date;
-        }   
+        }
         $data['success']['name'] = 'Success transaction';
 
         return $data;
-        
+
     }
 }

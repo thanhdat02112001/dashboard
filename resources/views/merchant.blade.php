@@ -152,38 +152,60 @@
                                 <figure class="highcharts-figure">
                                     <div id="column-chart"></div>
                                 </figure>
+                                <figure class="highcharts-figure">
+                                    <div id="horizional-barchart"></div>
+                                </figure>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <div class="chart-column">
+                        <div class="chart-right">
                             <div id="chart-pie"></div>
+                            <div id="issue-bank"></div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <figure class="highcharts-figure">
-                            <div id="horizional-barchart"></div>
-                        </figure>
-                    </div>
-                    <div class="col-lg-6">
-                        <figure class="highcharts-figure">
-                            <div id="issue-bank"></div>
-                        </figure>
-                    </div>
                     <div class="col-lg-12">
-                        <figure class="highcharts-figure">
-                            <div id="error-detail"></div>
-                        </figure>
-                    </div>
-                    <div class="col-lg-12">
-                        <figure class="highcharts-figure">
+                        <div class="rate-trans">
                             <div id="rate-transaction"></div>
-                        </figure>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3">
-
+                <div class="col-lg-12">
+                    <table class="table">
+                        <th>
+                            <tr>Card number</tr>
+                            <tr>GMV</tr>
+                            <tr>Count</tr>
+                        </th>
+                        <tr>
+                            <td>2791000xxx919</td>
+                            <td>347823</td>
+                            <td>28</td>
+                        </tr>
+                        <tr>
+                            <td>2791000xxx919</td>
+                            <td>347823</td>
+                            <td>28</td>
+                        </tr>
+                        <tr>
+                            <td>2791000xxx919</td>
+                            <td>347823</td>
+                            <td>28</td>
+                        </tr>
+                        <tr>
+                            <td>2791000xxx919</td>
+                            <td>347823</td>
+                            <td>28</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-lg-12">
+                    <figure class="highcharts-figure">
+                        <div id="error-detail"></div>
+                    </figure>
+                </div>
             </div>
         </div>
     </div>

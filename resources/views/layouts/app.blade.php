@@ -38,7 +38,7 @@
 
         <div id="page-wrapper" class="gray-bg dashbard-1">
             @include('layouts.element.header')
-            @include('layouts.element.breadcrumb')
+            {{-- @include('layouts.element.breadcrumb') --}}
 
             <div class="wrapper wrapper-content animated fadeInRight">
                 <div class="row">
