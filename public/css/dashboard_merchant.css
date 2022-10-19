@@ -65,7 +65,7 @@
     position: relative;
 }
 table {
-    color: white;
+    color: white !important;
 }
 #chart-pie {
     height: 85%;

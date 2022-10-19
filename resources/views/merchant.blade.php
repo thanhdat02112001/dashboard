@@ -172,32 +172,38 @@
             </div>
             <div class="col-lg-3">
                 <div class="col-lg-12">
-                    <table class="table">
-                        <th>
-                            <tr>Card number</tr>
-                            <tr>GMV</tr>
-                            <tr>Count</tr>
-                        </th>
-                        <tr>
-                            <td>2791000xxx919</td>
-                            <td>347823</td>
-                            <td>28</td>
-                        </tr>
-                        <tr>
-                            <td>2791000xxx919</td>
-                            <td>347823</td>
-                            <td>28</td>
-                        </tr>
-                        <tr>
-                            <td>2791000xxx919</td>
-                            <td>347823</td>
-                            <td>28</td>
-                        </tr>
-                        <tr>
-                            <td>2791000xxx919</td>
-                            <td>347823</td>
-                            <td>28</td>
-                        </tr>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Card number</th>
+                                <th>GMV</th>
+                                <th>Count</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2791000xxx919</td>
+                                <td>347823</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>2791000xxx919</td>
+                                <td>347823</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>2791000xxx919</td>
+                                <td>347823</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>2791000xxx919</td>
+                                <td>347823</td>
+                                <td>28</td>
+                            </tr>
+                        </tbody>
+
+
                     </table>
                 </div>
                 <div class="col-lg-12">
