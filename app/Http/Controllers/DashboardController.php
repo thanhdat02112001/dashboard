@@ -35,19 +35,19 @@ class DashboardController extends Controller
         }
 
         $total_transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                                ->get()->toArray();
-        $transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->get()->toArray();
-        $prev_transactions =  ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
-                                        ->where('trans_status', 5)->get()->toArray();
-        $total_gmv = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->sum('total_amount');
-        $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
-                                        ->where('trans_status', 5)->sum('total_amount');
-        $gmv_invoice = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
-        $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
+        ->get()->toArray();
+$transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->get()->toArray();
+$prev_transactions =  ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
+->where('trans_status', 5)->get()->toArray();
+$total_gmv = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->sum('total_amount');
+$prev_total_gmv  = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
+->where('trans_status', 5)->sum('total_amount');
+$gmv_invoice = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
+$gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
         $data = [
             'gmv_okr' => count($total_transactions),
             'percent_gmv' => count($transactions) * 100 / count($prev_transactions),
