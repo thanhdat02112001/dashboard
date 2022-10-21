@@ -269,10 +269,6 @@ function rateTransaction(query = '') {
                         text: 'Quantity'
                     }
                 },
-                tooltip: {
-                    shared: true,
-                    headerFormat: '<b>Hunting season starting autumn {point.x}</b><br>'
-                },
                 credits: {
                     enabled: false
                 },
