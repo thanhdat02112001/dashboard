@@ -79,6 +79,14 @@ table {
     bottom: 15px;
 
 }
+.card-table {
+    border: 1px solid gray;
+    margin-bottom: 10px;
+}
+.table-overflow {
+    overflow-y: scroll;
+    max-height: 100px;
+}
 
 .chart-left::after{
     content: '';

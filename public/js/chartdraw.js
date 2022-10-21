@@ -136,14 +136,10 @@ $.ajax({
                 dataLabels: {
                   enabled: false
                 },
-                showInLegend: true
+                showInLegend: false
               },
             },
-            legend: {
-                itemStyle: {
-                    color: '#ffff',
-                }
-            },
+            
             series: [{
               name: 'GMV Proportion',
                 colorByPoint: true,

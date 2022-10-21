@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Merchant;
 use App\Models\Method;
 use App\Models\ReportTransaction;
+use App\Models\User;
 use DateInterval;
 use DatePeriod;
 use DateTime;
@@ -33,6 +34,21 @@ class DashboardController extends Controller
         foreach ($gateways as $gateway) {
             array_push($gatewaysData, $gateway->gateway);
         }
+        $card_errors = ReportTransaction::where('trans_status', 3)->pluck('card_id')->toArray();
+        $cardErrors = array_count_values($card_errors);
+        $cardDatas = [];
+        foreach ($cardErrors as $key => $value){
+            $card = DB::table('cards')->where('id', $key)->first();
+            $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+            $tmp_data = [
+                'card_no' => $card->card_no,
+                'gmv' => $trans_by_card->sum('total_amount'),
+                'trans' => count($trans_by_card->toArray()),
+                'errors' => $value,
+            ];
+            array_push($cardDatas, $tmp_data);
+        }
+        // dd($cardDatas);
 
         $total_transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
         ->get()->toArray();
@@ -59,7 +75,7 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
             'gmv_ecom' => $gmv_ecom / 1000000,
         ];
 
-        return view('merchant', compact('merchantData', 'methodData', 'gatewaysData', 'data'));
+        return view('merchant', compact('merchantData', 'methodData', 'gatewaysData', 'data', 'cardDatas'));
     }
 
     public function gmvGrowth()
