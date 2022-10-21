@@ -64,6 +64,19 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
 
     public function gmvGrowth()
     {
+        $conditions = [];
+        if(isset(request()->merchanId) && request()->merchanId != 'null') {
+            $conditions[] = ['merchant_id', request()->merchanId];
+        }
+
+        if(isset(request()->payMethod) && request()->payMethod != 'null') {
+            $conditions[] = ['payment_type', request()->payMethod];
+        }
+
+        if(isset(request()->gateWay) && request()->gateWay != 'null') {
+            $conditions[] = ['gateway_id', request()->gateWay];
+        }
+
         $startMonth = Carbon::now()->copy()->startOfMonth();
         $today = Carbon::now();
         $interval = DateInterval::createFromDateString(('1 day'));
@@ -76,8 +89,10 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         }
 
         foreach ($dates as $date) {
-            $transPerDay = ReportTransaction::where('dates', $date)->where('trans_status', 5)->get();
-            $amountPerDay = ReportTransaction::where('dates', $date)->where('trans_status', 5)->sum('total_amount');
+            $transPerDay = ReportTransaction::where('dates', $date)
+                                ->where($conditions)->where('trans_status', 5)->get();
+            $amountPerDay = ReportTransaction::where('dates', $date)
+                                ->where($conditions)->where('trans_status', 5)->sum('total_amount');
 
             array_push($columns, (int)$amountPerDay /1000000);
             array_push($line, count($transPerDay));
@@ -87,41 +102,68 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
 
     public function gmvProportion()
     {
+        $conditions = [];
+        if(isset(request()->merchanId) && request()->merchanId != 'null') {
+            $conditions[] = ['merchant_id', request()->merchanId];
+        }
+
+        if(isset(request()->payMethod) && request()->payMethod != 'null') {
+            $conditions[] = ['payment_type', request()->payMethod];
+        }
+
+        if(isset(request()->gateWay) && request()->gateWay != 'null') {
+            $conditions[] = ['gateway_id', request()->gateWay];
+        }
+
         $pieDatas = [];
         $total_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
-                                        ->where('trans_status', 5)->sum('total_amount');
+                                        ->where($conditions)->where('trans_status', 5)->sum('total_amount');
         $methods = Method::all();
         foreach ($methods as $method) {
             $method_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
-            ->where('trans_status', 5)->where('method_id', $method->id)->sum('total_amount');
-            if ($method_gmv != 0) {
-                $piedata = [
-                    'name' => $method->method,
-                    'y' => $method_gmv * 100 /$total_gmv,
-                ];
-                array_push($pieDatas, $piedata);
-            }
+            ->where('trans_status', 5)
+            ->where($conditions)->where('method_id', $method->id)->sum('total_amount');
+            $piedata = [
+                'name' => $method->method,
+                'y' => $method_gmv * 100 /$total_gmv,
+                'drilldown' => $method->method,
+            ];
+            array_push($pieDatas, $piedata);
         }
         return $pieDatas;
     }
 
     public function transStatusOfBrand()
     {
+        $conditions = [];
+        if(isset(request()->merchanId) && request()->merchanId != 'null') {
+            $conditions[] = ['merchant_id', request()->merchanId];
+        }
+
+        if(isset(request()->payMethod) && request()->payMethod != 'null') {
+            $conditions[] = ['payment_type', request()->payMethod];
+        }
+
+        if(isset(request()->gateWay) && request()->gateWay != 'null') {
+            $conditions[] = ['gateway_id', request()->gateWay];
+        }
+
         $today =Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
-        $brands = DB::table('reports_transaction')->select("bank_code")->distinct()->get();
+        $brands = DB::table('reports_transaction')->select("bank_code")
+                    ->where($conditions)->distinct()->get();
         $datas = [];
         $brand_categories = [];
         foreach ($brands as $brand) {
             if ($brand->bank_code != "") {
                 array_push($brand_categories, $brand->bank_code);
                 $total_trans_amount = ReportTransaction::where('dates', $today)
-                ->where('bank_code', $brand->bank_code)->sum('total_amount');
+                ->where($conditions)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $success_trans_amount = ReportTransaction::where('dates', $today)
-                ->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $cancel_trans_amount = ReportTransaction::where('dates', $today)
-                ->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $fail_trans_amount = ReportTransaction::where('dates', $today)
-                ->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 if ($total_trans_amount != 0) {
                     $percent_success = $success_trans_amount * 100 / $total_trans_amount;
                     $percent_cancel = $cancel_trans_amount * 100 / $total_trans_amount;
@@ -151,8 +193,7 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
             $conditions[] = ['gateway_id', request()->gateWay];
         }
         if(isset(request()->date) && request()->date != 'null') {
-            $conditions[] = ['created_at',request()->date];
-            $conditions[] = ['created_at', '< =', request()->date.' 23:59:59'];
+            $conditions[] = ['dates',request()->date];
         }
 
         $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
@@ -205,8 +246,7 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         }
 
         if(isset(request()->date) && request()->date != 'null') {
-            $conditions[] = ['created_at', '> =', request()->date.' 00:00:00'];
-            $conditions[] = ['created_at', '< =', request()->date.' 23:59:59'];
+            $conditions[] = ['dates',request()->date];
         }
 
         $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
@@ -239,8 +279,7 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         }
 
         if(isset(request()->date) && request()->date != 'null') {
-            $conditions[] = ['created_at',request()->date];
-            $conditions[] = ['created_at', '< =', request()->date.' 23:59:59'];
+            $conditions[] = ['dates',request()->date];
         }
 
         $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
