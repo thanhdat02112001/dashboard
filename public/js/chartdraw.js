@@ -434,8 +434,25 @@ function changeBankroll(sel) {
     rateTransaction(query);
 }
 
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 function changeDate(inp) {
-    query += '&date=' + inp.value;
+    let date = inp.value.split(' - ');
+    let start = new Date(date[0]);
+    let end = new Date(date[1]);
+    query += '&dateStart=' + formatDate(start, 'YYYY-MM-DD') + '&dateEnd=' + formatDate(end,'YYYY-MM-DD');
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);

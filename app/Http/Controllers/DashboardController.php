@@ -101,7 +101,7 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         $columns = [];
         $line = [];
         foreach ($period as $dt) {
-            array_push($dates, $dt->toDateString());
+            array_push($dates, $dt);
         }
 
         foreach ($dates as $date) {
@@ -208,13 +208,16 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         if(isset(request()->gateWay) && request()->gateWay != 'null') {
             $conditions[] = ['gateway_id', request()->gateWay];
         }
-        if(isset(request()->date) && request()->date != 'null') {
-            $conditions[] = ['dates',request()->date];
-        }
 
         $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
                     ->where($conditions)
                     ->distinct()->get();
+        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+            $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
+                    ->where($conditions)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
+                    ->distinct()->get();
+        }
         $data = [];
         $brands = [];
         foreach ($brands as $index => $brand) {
@@ -261,14 +264,16 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
             $conditions[] = ['gateway_id', request()->gateWay];
         }
 
-        if(isset(request()->date) && request()->date != 'null') {
-            $conditions[] = ['dates',request()->date];
-        }
-
         $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
                         ->groupBy('trans_status')->get();
 
+        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+                        ->where($conditions)
+                        ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
+                        ->groupBy('trans_status')->get();
+        }
         $data = [];
         foreach($status as $item) {
             $data[] = [0, (int)$item->total];
