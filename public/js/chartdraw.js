@@ -6,9 +6,9 @@ $.ajax({
             chart: {
                 zoomType: 'xy',
                 marginBottom: 70,
-                height: (10 / 16 * 120) + '%',
+                height: (10 / 16 * 80) + '%',
                 style: {
-                    fontFamily: 'Open Sans'
+                    fontFamily: 'Open Sans',
                 },
                 spacingTop: 60,
                 backgroundColor: '#13173c',
@@ -98,17 +98,20 @@ $.ajax({
         console.log(res)
         Highcharts.chart('chart-pie', {
             chart: {
+                plotBackgroundColor: '',
+                plotBorderWidth: null,
+                plotShadow: false,
+                height: (10 / 16 * 100) + '%',
                 type: 'pie',
-                marginBottom: 0,
-                height: (10 / 16 * 175) + '%',
+                // borderRadius: '10px',
                 style: {
                     fontFamily: 'Open Sans'
                 },
                 spacingTop: 20,
-                backgroundColor: '#13173c',
+                backgroundColor: '#13173c'
             },
             title: {
-                text: 'The GMV Proportion',
+                text: 'The GMV proportion',
                 verticalAlign: 'top',
                 style: {
                     fontWeight: 'bold',
@@ -117,43 +120,32 @@ $.ajax({
                 },
                 y: 20,
             },
-            accessibility: {
-                announceNewData: {
-                    enabled: true
-                },
-                point: {
-                    valueSuffix: '%'
-                }
-            },
-
-            plotOptions: {
-                series: {
-                    dataLabels: {
-                        enabled: true,
-                        format: '{point.name}: {point.y:.1f}%'
-                    }
-                }
-            },
-
             tooltip: {
-                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+              pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
-            legend: {
-                layout: 'horizontal',
-                align: 'bottom',
-                verticalAlign: 'bottom',
-                itemMarginBottom: 0,
-                itemStyle: {
-                    color: '#fff'
-                }
+            accessibility: {
+              point: {
+                valueSuffix: '%'
+              }
             },
+            plotOptions: {
+              pie: {
+                innerSize : '60%',
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                  enabled: false
+                },
+                showInLegend: false
+              },
+            },
+            
             series: [{
-                name: "GMV Proportion",
+              name: 'GMV Proportion',
                 colorByPoint: true,
-                data: res
-            }],
-        });
+              data: res,
+            }]
+          });
     }
 })
 
@@ -165,7 +157,7 @@ $.ajax({
             chart: {
                 type: 'bar',
                 marginBottom: 70,
-                height: (10 / 16 * 120) + '%',
+                height: (10 / 16 * 80) + '%',
                 style: {
                     fontFamily: 'Open Sans'
                 },
@@ -186,19 +178,33 @@ $.ajax({
             },
             yAxis: {
                 min: 0,
-                title: {
-                    text: 'Goals'
-                }
+                max: 100,
             },
             legend: {
-                reversed: true
+                reversed: true,
+                itemStyle: {
+                    color: '#fff'
+                }
             },
             plotOptions: {
                 series: {
                     stacking: 'normal'
                 }
             },
-            series: res.data
+            // res.data
+            series: [{
+                'name': 'cancel',
+                'data' : [15, 20, 45, 20]
+            },
+            {
+                'name': 'abc',
+                'data' : [20, 20, 15, 30]
+            },
+            {
+                'name': 'success',
+                'data' : [65, 60, 40, 50]
+            },
+        ]
         });
     }
 })
@@ -214,14 +220,22 @@ function rateTransaction(query = '') {
             console.log(res);
             Highcharts.chart('rate-transaction', {
                 chart: {
-                    type: 'areaspline'
+                    type: 'areaspline',
+                    marginBottom: 70,
+                    height: (10 / 16 * 60) + '%',
+                    style: {
+                        fontFamily: 'Open Sans',
+                    },
+                    spacingTop: 60,
+                    backgroundColor: '#13173c',
                 },
                 title: {
-                    text: 'Moose and deer hunting in Norway, 2000 - 2021'
-                },
-                subtitle: {
-                    align: 'center',
-                    text: 'Source: <a href="https://www.ssb.no/jord-skog-jakt-og-fiskeri/jakt" target="_blank">SSB</a>'
+                    text: 'The coversion rate of transactions',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
                 },
                 legend: {
                     layout: 'vertical',
@@ -250,10 +264,6 @@ function rateTransaction(query = '') {
                     title: {
                         text: 'Quantity'
                     }
-                },
-                tooltip: {
-                    shared: true,
-                    headerFormat: '<b>Hunting season starting autumn {point.x}</b><br>'
                 },
                 credits: {
                     enabled: false
@@ -302,6 +312,9 @@ function issueBank(query = '') {
         url: '/issueBank' + query,
         success: function(res) {
             Highcharts.chart('issue-bank', {
+                chart: {
+                    backgroundColor: '#13173c',
+                },
                 colorAxis: {
                     minColor: '#FFFFFF',
                     maxColor: Highcharts.getOptions().colors[0]
@@ -312,7 +325,12 @@ function issueBank(query = '') {
                     data: res
                 }],
                 title: {
-                    text: 'Transaction status by issuing bank and card bank'
+                    text: 'Transaction status by issuing bank and card bank',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
                 }
             });
         }
@@ -328,11 +346,14 @@ function errorDetail(query = '') {
             Highcharts.chart('error-detail', {
                 chart: {
                     type: 'columnrange',
-                    inverted: true
-                },
-
-                accessibility: {
-                    description: 'Image description: A column range chart compares the monthly temperature variations throughout 2017 in Vik I Sogn, Norway. The chart is interactive and displays the temperature range for each month when hovering over the data. The temperature is measured in degrees Celsius on the X-axis and the months are plotted on the Y-axis. The lowest temperature is recorded in March at minus 10.2 Celsius. The lowest range of temperatures is found in December ranging from a low of minus 9 to a high of 8.6 Celsius. The highest temperature is found in July at 26.2 Celsius. July also has the highest range of temperatures from 6 to 26.2 Celsius. The broadest range of temperatures is found in May ranging from a low of minus 0.6 to a high of 23.1 Celsius.'
+                    inverted: true,
+                    marginBottom: 70,
+                    height: (10 / 16 * 180) + '%',
+                    style: {
+                        fontFamily: 'Open Sans'
+                    },
+                    spacingTop: 60,
+                    backgroundColor: '#13173c',
                 },
 
                 title: {
@@ -369,7 +390,10 @@ function errorDetail(query = '') {
                 },
 
                 legend: {
-                    enabled: false
+                    enabled: false,
+                    itemStyle: {
+                        color: '#fff'
+                    }
                 },
 
                 series: [{

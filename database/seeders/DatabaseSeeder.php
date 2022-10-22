@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Card;
 use App\Models\Merchant;
+use App\Models\ReportTransaction;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,7 +16,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-        Merchant::factory(100)->create();
+        $this->call([
+            MerchantSeeder::class,
+            GatewaySeeder::class,
+            BankSeeder::class,
+            TranStatusSeeder::class,
+            ChannelSeeder::class,
+            MethodSeeder::class,
+        ]);
+        Card::factory()->count(100)->create();
+        ReportTransaction::factory()->count(2000)->create();
     }
 }

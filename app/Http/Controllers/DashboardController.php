@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Merchant;
 use App\Models\Method;
 use App\Models\ReportTransaction;
+use App\Models\User;
 use DateInterval;
 use DatePeriod;
 use DateTime;
@@ -33,21 +34,36 @@ class DashboardController extends Controller
         foreach ($gateways as $gateway) {
             array_push($gatewaysData, $gateway->gateway);
         }
+        $card_errors = ReportTransaction::where('trans_status', 3)->pluck('card_id')->toArray();
+        $cardErrors = array_count_values($card_errors);
+        $cardDatas = [];
+        foreach ($cardErrors as $key => $value){
+            $card = DB::table('cards')->where('id', $key)->first();
+            $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+            $tmp_data = [
+                'card_no' => $card->card_no,
+                'gmv' => $trans_by_card->sum('total_amount'),
+                'trans' => count($trans_by_card->toArray()),
+                'errors' => $value,
+            ];
+            array_push($cardDatas, $tmp_data);
+        }
+        // dd($cardDatas);
 
         $total_transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                                ->get()->toArray();
-        $transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->get()->toArray();
-        $prev_transactions =  ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
-                                        ->where('trans_status', 5)->get()->toArray();
-        $total_gmv = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->sum('total_amount');
-        $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
-                                        ->where('trans_status', 5)->sum('total_amount');
-        $gmv_invoice = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
-        $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-                                        ->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
+        ->get()->toArray();
+$transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->get()->toArray();
+$prev_transactions =  ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
+->where('trans_status', 5)->get()->toArray();
+$total_gmv = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->sum('total_amount');
+$prev_total_gmv  = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
+->where('trans_status', 5)->sum('total_amount');
+$gmv_invoice = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
+$gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
+->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
         $data = [
             'gmv_okr' => count($total_transactions),
             'percent_gmv' => count($transactions) * 100 / count($prev_transactions),
@@ -59,7 +75,7 @@ class DashboardController extends Controller
             'gmv_ecom' => $gmv_ecom / 1000000,
         ];
 
-        return view('merchant', compact('merchantData', 'methodData', 'gatewaysData', 'data'));
+        return view('merchant', compact('merchantData', 'methodData', 'gatewaysData', 'data', 'cardDatas'));
     }
 
     public function gmvGrowth()
@@ -203,7 +219,7 @@ class DashboardController extends Controller
         $brands = [];
         foreach ($brands as $index => $brand) {
             if ($brand->bank_code != "") {
-                $data[$index]['name'] = $brand->bank_code; 
+                $data[$index]['name'] = $brand->bank_code;
                 if(isset(request()->merchanId) && request()->merchanId != 'null') {
                     $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)
                                             ->where($conditions)->sum('total_amount');
@@ -211,7 +227,6 @@ class DashboardController extends Controller
                 else {
                     $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->sum('total_amount');
                 }
-                
                 $data[$index]['value'] = (int)$total_trans_amount;
             }
         }
@@ -253,14 +268,13 @@ class DashboardController extends Controller
         $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
                         ->groupBy('trans_status')->get();
-        
+
         $data = [];
         foreach($status as $item) {
             $data[] = [0, (int)$item->total];
         }
         return $data;
     }
-    
     public function rateTransaction() {
         $formDate = date('Y-m-d', strtotime('-7 days'));
         $toDate = date('Y-m-d', strtotime('1 days'));
@@ -298,26 +312,25 @@ class DashboardController extends Controller
                                 ->where('trans_status', 5)
                                 ->where($conditions)
                                 ->groupBy('date')->get();
-        
+
         foreach($totalTransactions as $item) {
             $data['total']['data'][] = $item->total;
             $data['total']['date'][] = $item->date;
-        }   
+        }
         $data['total']['name'] = 'Total transaction';
 
         foreach($errorTransactions as $item) {
             $data['error']['data'][] = $item->total;
             $data['error']['date'][] = $item->date;
-        }   
+        }
         $data['error']['name'] = 'Error transaction';
-        
         foreach($successTransactions as $item) {
             $data['success']['data'][] = $item->total;
             $data['success']['date'][] = $item->date;
-        }   
+        }
         $data['success']['name'] = 'Success transaction';
 
         return $data;
-        
+
     }
 }

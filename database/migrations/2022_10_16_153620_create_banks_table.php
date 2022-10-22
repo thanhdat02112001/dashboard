@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateReportsTransactionTable extends Migration
+class CreateBanksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,10 @@ class UpdateReportsTransactionTable extends Migration
      */
     public function up()
     {
-        Schema::table('reports_transaction', function(Blueprint $table) {
+        Schema::create('banks', function (Blueprint $table) {
+            $table->string('bank_code');
+            $table->string('bank_name');
+            $table->primary('bank_code');
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ class UpdateReportsTransactionTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('banks');
     }
 }

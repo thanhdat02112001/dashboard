@@ -151,38 +151,96 @@
                                 <figure class="highcharts-figure">
                                     <div id="column-chart"></div>
                                 </figure>
+                                <figure class="highcharts-figure">
+                                    <div id="horizional-barchart"></div>
+                                </figure>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <div class="chart-column">
+                        <div class="chart-right">
                             <div id="chart-pie"></div>
+                            <div id="issue-bank"></div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <figure class="highcharts-figure">
-                            <div id="horizional-barchart"></div>
-                        </figure>
-                    </div>
-                    <div class="col-lg-6">
-                        <figure class="highcharts-figure">
-                            <div id="issue-bank"></div>
-                        </figure>
-                    </div>
                     <div class="col-lg-12">
-                        <figure class="highcharts-figure">
-                            <div id="error-detail"></div>
-                        </figure>
-                    </div>
-                    <div class="col-lg-12">
-                        <figure class="highcharts-figure">
+                        <div class="rate-trans">
                             <div id="rate-transaction"></div>
-                        </figure>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3">
-
+                <div class="col-lg-12">
+                    <div class="card-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Card number</th>
+                                    <th>GMV</th>
+                                    <th>Count</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalGmv = 0;
+                                    $totalTrans = 0;
+                                @endphp
+                                <div class="table-overflow">
+                                    @foreach ($cardDatas as $card)
+                                    <tr>
+                                        <td>{{$card['card_no']}}</td>
+                                        <td>{{$card['gmv']}}</td>
+                                        <td class="text-right">{{$card['trans']}}</td>
+                                    </tr>
+                                    @php
+                                        $totalGmv += $card['gmv'];
+                                        $totalTrans += $card['trans'];
+                                    @endphp
+                                    @endforeach
+                                </div>
+                                <tr>
+                                    <th>Total</th>
+                                    <th>{{$totalGmv}}</th>
+                                    <th class="text-right">{{$totalTrans}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Card Number</th>
+                                    <th>Number of errors</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalError = 0;
+                                @endphp
+                                @foreach ($cardDatas as $card)
+                                    <tr>
+                                        <td>{{$card['card_no']}}</td>
+                                        <td class="text-right">{{$card['errors']}}</td>
+                                        @php
+                                            $totalError += $card['errors'];
+                                        @endphp
+                                    </tr>
+                                @endforeach
+                                <tr>
+                                    <th>Total</th>
+                                    <th class="text-right">{{$totalError}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <figure class="highcharts-figure">
+                        <div id="error-detail"></div>
+                    </figure>
+                </div>
             </div>
         </div>
     </div>
