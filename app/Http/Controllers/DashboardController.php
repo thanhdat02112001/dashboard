@@ -17,6 +17,12 @@ class DashboardController extends Controller
 {
     public function index()
     {
+
+        $startTime = Carbon::now()->copy()->startOfDay()->toDateTimeString();
+        $endTime = Carbon::now()->toDateTimeString();
+        $prevDay = Carbon::now()->copy()->startOfDay()->subDay()->toDateTimeString();
+        $prevTime = Carbon::now()->subDay()->toDateTimeString();
+
         $merchants = DB::table('merchants')->select('id', 'name')->get()->toArray();
         $merchantData = [];
         foreach ($merchants as $merchant) {
@@ -50,20 +56,19 @@ class DashboardController extends Controller
         }
         // dd($cardDatas);
 
-        $total_transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-        ->get()->toArray();
-$transactions = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-->where('trans_status', 5)->get()->toArray();
-$prev_transactions =  ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
-->where('trans_status', 5)->get()->toArray();
-$total_gmv = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-->where('trans_status', 5)->sum('total_amount');
-$prev_total_gmv  = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay()->subDay(),  Carbon::now('Asia/Ho_Chi_Minh')->subDay()])
-->where('trans_status', 5)->sum('total_amount');
-$gmv_invoice = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
-$gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()->startOfDay(), Carbon::now('Asia/Ho_Chi_Minh')])
-->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
+        $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])->get()->toArray();
+        $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where('trans_status', 5)->get()->toArray();
+        $prev_transactions =  ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        ->where('trans_status', 5)->get()->toArray();
+        $total_gmv = ReportTransaction::whereBetween('created_at',[$startTime, $endTime] )
+        ->where('trans_status', 5)->sum('total_amount');
+        $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        ->where('trans_status', 5)->sum('total_amount');
+        $gmv_invoice = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
+        $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
         $data = [
             'gmv_okr' => count($total_transactions),
             'percent_gmv' => count($transactions) * 100 / count($prev_transactions),
@@ -132,17 +137,16 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         }
 
         $pieDatas = [];
-        $total_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
+        $total_gmv = ReportTransaction::where('dates', Carbon::now()->toDateString())
                                         ->where($conditions)->where('trans_status', 5)->sum('total_amount');
         $methods = Method::all();
         foreach ($methods as $method) {
-            $method_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
+            $method_gmv = ReportTransaction::where('dates', Carbon::now()->toDateString())
             ->where('trans_status', 5)
             ->where($conditions)->where('method_id', $method->id)->sum('total_amount');
             $piedata = [
                 'name' => $method->method,
-                'y' => $method_gmv * 100 /$total_gmv,
-                'drilldown' => $method->method,
+                'y' => round($method_gmv * 100 /$total_gmv,2),
             ];
             array_push($pieDatas, $piedata);
         }
@@ -167,32 +171,42 @@ $gmv_ecom = ReportTransaction::whereBetween('created_at', [Carbon::now()->copy()
         $today =Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
         $brands = DB::table('reports_transaction')->select("bank_code")
                     ->where($conditions)->distinct()->get();
-        $datas = [];
+        $success_rate = [];
+        $cancel_rate = [];
+        $process_rate = [];
+        $other_rate = [];
         $brand_categories = [];
         foreach ($brands as $brand) {
             if ($brand->bank_code != "") {
                 array_push($brand_categories, $brand->bank_code);
+
                 $total_trans_amount = ReportTransaction::where('dates', $today)
                 ->where($conditions)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $success_trans_amount = ReportTransaction::where('dates', $today)
                 ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $cancel_trans_amount = ReportTransaction::where('dates', $today)
-                ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
-                $fail_trans_amount = ReportTransaction::where('dates', $today)
-                ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                ->where($conditions)->where('trans_status', 3)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                $processing_trans_amount = ReportTransaction::where('dates', $today)
+                ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 if ($total_trans_amount != 0) {
-                    $percent_success = $success_trans_amount * 100 / $total_trans_amount;
-                    $percent_cancel = $cancel_trans_amount * 100 / $total_trans_amount;
-                    $percent_fail = $fail_trans_amount * 100 / $total_trans_amount;
-                    $data = [
-                        'name' => $brand->bank_code,
-                        'data' => [$percent_success, $percent_cancel, $percent_fail, 100 - ($percent_cancel + $percent_success +$percent_fail)]
-                    ];
-                    array_push($datas, $data);
+                    $percent_success = round($success_trans_amount * 100 / $total_trans_amount, 2);
+                    $percent_cancel =  round($cancel_trans_amount * 100 / $total_trans_amount, 2);
+                    $percent_processing = round($processing_trans_amount * 100 / $total_trans_amount, 2);
+                    $percent_other = round(100 - ($percent_cancel + $percent_processing + $percent_success), 2);
+                    array_push($success_rate, $percent_success);
+                    array_push($cancel_rate, $percent_cancel);
+                    array_push($process_rate, $percent_processing);
+                    array_push($other_rate, $percent_other);
                 }
             }
         }
-        return ['categories' => $brand_categories, 'data' => $datas];
+        return [
+            'categories' => $brand_categories,
+            'success' => $success_rate,
+            'cancel' => $cancel_rate,
+            'process' => $process_rate,
+            'other' => $other_rate,
+        ];
     }
 
     public function issueBank() {

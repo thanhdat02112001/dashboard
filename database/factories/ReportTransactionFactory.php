@@ -15,7 +15,7 @@ class ReportTransactionFactory extends Factory
     protected $model = ReportTransaction::class;
     public function definition()
     {
-        $dateTime =$this->faker->dateTimeThisMonth();
+        $dateTime = now();
         return [
             'dates' => $dateTime->format('Y-m-d'),
             'merchant_id' => rand(1,5),

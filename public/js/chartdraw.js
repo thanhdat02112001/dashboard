@@ -134,12 +134,13 @@ $.ajax({
                 allowPointSelect: true,
                 cursor: 'pointer',
                 dataLabels: {
-                  enabled: false
+                  enabled: true,
+                  format: '<b>{point.name}</b>: {point.percentage:.1f} %',
                 },
                 showInLegend: false
               },
             },
-            
+
             series: [{
               name: 'GMV Proportion',
                 colorByPoint: true,
@@ -156,12 +157,10 @@ $.ajax({
         Highcharts.chart('horizional-barchart', {
             chart: {
                 type: 'bar',
-                marginBottom: 70,
                 height: (10 / 16 * 80) + '%',
                 style: {
                     fontFamily: 'Open Sans'
                 },
-                spacingTop: 60,
                 backgroundColor: '#13173c',
             },
             title: {
@@ -174,11 +173,19 @@ $.ajax({
                 },
             },
             xAxis: {
-                categories: res.categories
+                categories: res.categories,
+                min: 0,
+                max: 4,
+                scrollbar: {
+                    enabled: true
+                },
             },
             yAxis: {
                 min: 0,
                 max: 100,
+                title: {
+                    text: null
+                }
             },
             legend: {
                 reversed: true,
@@ -189,20 +196,28 @@ $.ajax({
             plotOptions: {
                 series: {
                     stacking: 'normal'
+                },
+                bar: {
+                    dataLabels: {
+                      enabled: true
+                    }
                 }
             },
-            // res.data
             series: [{
-                'name': 'cancel',
-                'data' : [15, 20, 45, 20]
-            },
-            {
-                'name': 'abc',
-                'data' : [20, 20, 15, 30]
-            },
-            {
                 'name': 'success',
-                'data' : [65, 60, 40, 50]
+                'data' : res.success
+            },
+            {
+                'name': 'cancel',
+                'data' : res.cancel
+            },
+            {
+                'name': 'process',
+                'data' : res.process
+            },
+            {
+                'name': 'other',
+                'data' : res.other
             },
         ]
         });

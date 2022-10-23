@@ -247,11 +247,8 @@
 @endsection
 
 @section('script')
-    {{-- <script src="{{ asset('js/plugins/moment/moment.min.js') }}" type="text/javascript"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    {{-- <script src="{{ asset('js/plugins/datapicker/bootstrap-datepicker.js') }}" type="text/javascript"></script> --}}
-    {{-- <script src="{{asset('js/plugins/select2/select2.min.js')}}"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     {{--HIGHT CHART--}}
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -260,6 +257,7 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
 
     {{-- <script src="/js/dashboard_merchant.js"></script> --}}
     <script src="/js/chartdraw.js"></script>
