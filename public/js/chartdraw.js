@@ -328,19 +328,24 @@ function issueBank(query = '') {
         success: function(res) {
             Highcharts.chart('issue-bank', {
                 chart: {
+                    type: 'treemap',
                     backgroundColor: '#13173c',
                 },
                 colorAxis: {
                     minColor: '#FFFFFF',
                     maxColor: Highcharts.getOptions().colors[0]
                 },
+                plotOptions: {
+                    treemap: {
+                        showInLegend: false,
+                    }
+                },
                 series: [{
-                    type: 'treemap',
-                    layoutAlgorithm: 'squarified',
+                    // layoutAlgorithm: 'squarified',
                     data: res
                 }],
                 title: {
-                    text: 'Transaction status by issuing bank and card bank',
+                    text: 'GMV by issuing bank',
                     style: {
                         fontWeight: 'bold',
                         fontSize: '16px',
@@ -360,59 +365,55 @@ function errorDetail(query = '') {
             console.log(res);
             Highcharts.chart('error-detail', {
                 chart: {
-                    type: 'columnrange',
+                    type: 'bar',
                     inverted: true,
-                    marginBottom: 70,
-                    height: (10 / 16 * 180) + '%',
+                    height: (10 / 16 * 215) + '%',
                     style: {
                         fontFamily: 'Open Sans'
                     },
-                    spacingTop: 60,
                     backgroundColor: '#13173c',
                 },
 
                 title: {
-                    text: 'Total error of system'
-                },
-
-                subtitle: {
-                    text: ''
+                    text: 'Error Details',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
                 },
 
                 xAxis: {
-                    categories: ['Error 1', 'Error 2', 'Error 3', 'Error 4', 'Error 5', 'Error 6',
-                        'Error 7', 'Error 8'
-                    ]
-                },
-
-                yAxis: {
-                    title: {
-                        text: 'Number of errors'
+                    categories: [
+                        'Customer Cancel',
+                        'Wrong Parameters',
+                        'Invalid_ExpDate',
+                        'Invalid_OTP',
+                    ],
+                    style: {
+                        color: '#fff',
+                        fontWeight: 'bold',
                     }
                 },
-
                 tooltip: {
-                    valueSuffix: 'error'
+                    valueSuffix: 'errors'
                 },
 
                 plotOptions: {
-                    columnrange: {
+                    bar: {
                         dataLabels: {
                             enabled: true,
                             format: '{y} errors'
-                        }
-                    }
-                },
+                        },
 
+                    },
+                },
                 legend: {
-                    enabled: false,
-                    itemStyle: {
-                        color: '#fff'
-                    }
+                    enabled: false
                 },
-
                 series: [{
-                    name: 'Error Detail',
+                    name: 'Errors',
+                    pointStart: 0,
                     data: res
                 }]
 
@@ -455,9 +456,9 @@ function formatDate(date) {
         day = '' + d.getDate(),
         year = d.getFullYear();
 
-    if (month.length < 2) 
+    if (month.length < 2)
         month = '0' + month;
-    if (day.length < 2) 
+    if (day.length < 2)
         day = '0' + day;
 
     return [year, month, day].join('-');

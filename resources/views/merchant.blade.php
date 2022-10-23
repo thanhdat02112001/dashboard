@@ -200,11 +200,13 @@
                                     @endphp
                                     @endforeach
                                 </div>
-                                <tr>
-                                    <th>Total</th>
-                                    <th>{{$totalGmv}}</th>
-                                    <th class="text-right">{{$totalTrans}}</th>
-                                </tr>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-right">{{$totalGmv}}</th>
+                                        <th class="text-right">{{$totalTrans}}</th>
+                                    </tr>
+                                </tfoot>
                             </tbody>
                         </table>
                     </div>
@@ -229,10 +231,12 @@
                                         @endphp
                                     </tr>
                                 @endforeach
-                                <tr>
-                                    <th>Total</th>
-                                    <th class="text-right">{{$totalError}}</th>
-                                </tr>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-right">{{$totalError}}</th>
+                                    </tr>
+                                </tfoot>
                             </tbody>
                         </table>
                     </div>
@@ -269,6 +273,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
-    $('input[id="select-time-summary"]').daterangepicker();    
+    $('input[id="select-time-summary"]').daterangepicker();
     </script>
 @endsection

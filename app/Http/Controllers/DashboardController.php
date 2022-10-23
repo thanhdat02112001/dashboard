@@ -106,7 +106,7 @@ class DashboardController extends Controller
         $columns = [];
         $line = [];
         foreach ($period as $dt) {
-            array_push($dates, $dt);
+            array_push($dates, $dt->format('Y-m-d'));
         }
 
         foreach ($dates as $date) {
@@ -223,9 +223,11 @@ class DashboardController extends Controller
             $conditions[] = ['gateway_id', request()->gateWay];
         }
 
-        $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
-                    ->where($conditions)
-                    ->distinct()->get();
+        // $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
+        //             ->where($conditions)
+        //             ->distinct()->get();
+        $brands = DB::table('banks')->select('bank_code')->get()->toArray();
+        // dd($brands);
         if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
             $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
                     ->where($conditions)
@@ -233,7 +235,6 @@ class DashboardController extends Controller
                     ->distinct()->get();
         }
         $data = [];
-        $brands = [];
         foreach ($brands as $index => $brand) {
             if ($brand->bank_code != "") {
                 $data[$index]['name'] = $brand->bank_code;
@@ -242,7 +243,7 @@ class DashboardController extends Controller
                                             ->where($conditions)->sum('total_amount');
                 }
                 else {
-                    $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->sum('total_amount');
+                    $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->where('dates', Carbon::now()->toDateString())->sum('total_amount');
                 }
                 $data[$index]['value'] = (int)$total_trans_amount;
             }
@@ -258,7 +259,6 @@ class DashboardController extends Controller
         foreach($data as $index => $item) {
             $data[$index]['colorValue'] = $i--;
         }
-
         return $data;
     }
 
@@ -290,7 +290,7 @@ class DashboardController extends Controller
         }
         $data = [];
         foreach($status as $item) {
-            $data[] = [0, (int)$item->total];
+            $data[] = (int)$item->total;
         }
         return $data;
     }
