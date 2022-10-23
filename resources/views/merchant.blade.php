@@ -8,6 +8,7 @@
     {{-- <link href="{{ asset('css/plugins/select2/select2.min.css') }}" rel="stylesheet"> --}}
 
     <link rel="stylesheet" href="/css/dashboard_merchant.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
 @section('content')
@@ -26,7 +27,7 @@
                                 <input class="form-control text-center date-input"
                                        onchange="changeDate(this)"
                                        id="select-time-summary"
-                                       type="date"
+                                       type="text"
                                        name="daterange"
                                 />
                             </div>
@@ -264,4 +265,10 @@
     <script src="https://code.highcharts.com/modules/heatmap.js"></script>
     <script src="https://code.highcharts.com/modules/treemap.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+    $('input[id="select-time-summary"]').daterangepicker();    
+    </script>
 @endsection
