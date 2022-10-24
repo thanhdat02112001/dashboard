@@ -199,6 +199,8 @@ class DashboardController extends Controller
                 ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $fail_trans_amount = ReportTransaction::where('dates', $today)
                 ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                $processing_trans_amount = ReportTransaction::where('dates', $today)
+                ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
                     $total_trans_amount = ReportTransaction::where('dates', $today)
                     ->where($conditions)->where('bank_code', $brand->bank_code)
@@ -211,6 +213,9 @@ class DashboardController extends Controller
                     ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
                     $fail_trans_amount = ReportTransaction::where('dates', $today)
                     ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+                    $processing_trans_amount = ReportTransaction::where('dates', $today)
+                    ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)
                     ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
                 }
                 if ($total_trans_amount != 0) {
