@@ -121,31 +121,32 @@ $.ajax({
                 y: 20,
             },
             tooltip: {
-              pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
             },
             accessibility: {
-              point: {
-                valueSuffix: '%'
-              }
+                point: {
+                    valueSuffix: '%'
+                }
             },
             plotOptions: {
-              pie: {
-                innerSize : '60%',
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                  enabled: false
+                pie: {
+                    innerSize: '60%',
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    },
+                    showInLegend: false
                 },
-                showInLegend: false
-              },
             },
-            
+
             series: [{
-              name: 'GMV Proportion',
+                name: 'GMV Proportion',
                 colorByPoint: true,
-              data: res,
+                data: res,
             }]
-          });
+        });
     }
 })
 
@@ -156,12 +157,10 @@ $.ajax({
         Highcharts.chart('horizional-barchart', {
             chart: {
                 type: 'bar',
-                marginBottom: 70,
                 height: (10 / 16 * 80) + '%',
                 style: {
                     fontFamily: 'Open Sans'
                 },
-                spacingTop: 60,
                 backgroundColor: '#13173c',
             },
             title: {
@@ -174,11 +173,19 @@ $.ajax({
                 },
             },
             xAxis: {
-                categories: res.categories
+                categories: res.categories,
+                min: 0,
+                max: 4,
+                scrollbar: {
+                    enabled: true
+                },
             },
             yAxis: {
                 min: 0,
                 max: 100,
+                title: {
+                    text: null
+                }
             },
             legend: {
                 reversed: true,
@@ -189,22 +196,30 @@ $.ajax({
             plotOptions: {
                 series: {
                     stacking: 'normal'
+                },
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
                 }
             },
-            // res.data
             series: [{
-                'name': 'cancel',
-                'data' : [15, 20, 45, 20]
-            },
-            {
-                'name': 'abc',
-                'data' : [20, 20, 15, 30]
-            },
-            {
-                'name': 'success',
-                'data' : [65, 60, 40, 50]
-            },
-        ]
+                    'name': 'success',
+                    'data': res.success
+                },
+                {
+                    'name': 'cancel',
+                    'data': res.cancel
+                },
+                {
+                    'name': 'process',
+                    'data': res.process
+                },
+                {
+                    'name': 'other',
+                    'data': res.other
+                },
+            ]
         });
     }
 })
@@ -313,19 +328,24 @@ function issueBank(query = '') {
         success: function(res) {
             Highcharts.chart('issue-bank', {
                 chart: {
+                    type: 'treemap',
                     backgroundColor: '#13173c',
                 },
                 colorAxis: {
                     minColor: '#FFFFFF',
                     maxColor: Highcharts.getOptions().colors[0]
                 },
+                plotOptions: {
+                    treemap: {
+                        showInLegend: false,
+                    }
+                },
                 series: [{
-                    type: 'treemap',
-                    layoutAlgorithm: 'squarified',
+                    // layoutAlgorithm: 'squarified',
                     data: res
                 }],
                 title: {
-                    text: 'Transaction status by issuing bank and card bank',
+                    text: 'GMV by issuing bank',
                     style: {
                         fontWeight: 'bold',
                         fontSize: '16px',
@@ -345,59 +365,55 @@ function errorDetail(query = '') {
             console.log(res);
             Highcharts.chart('error-detail', {
                 chart: {
-                    type: 'columnrange',
+                    type: 'bar',
                     inverted: true,
-                    marginBottom: 70,
-                    height: (10 / 16 * 180) + '%',
+                    height: (10 / 16 * 215) + '%',
                     style: {
                         fontFamily: 'Open Sans'
                     },
-                    spacingTop: 60,
                     backgroundColor: '#13173c',
                 },
 
                 title: {
-                    text: 'Total error of system'
-                },
-
-                subtitle: {
-                    text: ''
+                    text: 'Error Details',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
                 },
 
                 xAxis: {
-                    categories: ['Error 1', 'Error 2', 'Error 3', 'Error 4', 'Error 5', 'Error 6',
-                        'Error 7', 'Error 8'
-                    ]
-                },
-
-                yAxis: {
-                    title: {
-                        text: 'Number of errors'
+                    categories: [
+                        'Customer Cancel',
+                        'Wrong Parameters',
+                        'Invalid_ExpDate',
+                        'Invalid_OTP',
+                    ],
+                    style: {
+                        color: '#fff',
+                        fontWeight: 'bold',
                     }
                 },
-
                 tooltip: {
-                    valueSuffix: 'error'
+                    valueSuffix: 'errors'
                 },
 
                 plotOptions: {
-                    columnrange: {
+                    bar: {
                         dataLabels: {
                             enabled: true,
                             format: '{y} errors'
-                        }
-                    }
-                },
+                        },
 
+                    },
+                },
                 legend: {
-                    enabled: false,
-                    itemStyle: {
-                        color: '#fff'
-                    }
+                    enabled: false
                 },
-
                 series: [{
-                    name: 'Error Detail',
+                    name: 'Errors',
+                    pointStart: 0,
                     data: res
                 }]
 
@@ -440,9 +456,9 @@ function formatDate(date) {
         day = '' + d.getDate(),
         year = d.getFullYear();
 
-    if (month.length < 2) 
+    if (month.length < 2)
         month = '0' + month;
-    if (day.length < 2) 
+    if (day.length < 2)
         day = '0' + day;
 
     return [year, month, day].join('-');
@@ -452,7 +468,7 @@ function changeDate(inp) {
     let date = inp.value.split(' - ');
     let start = new Date(date[0]);
     let end = new Date(date[1]);
-    query += '&dateStart=' + formatDate(start, 'YYYY-MM-DD') + '&dateEnd=' + formatDate(end,'YYYY-MM-DD');
+    query += '&dateStart=' + formatDate(start, 'YYYY-MM-DD') + '&dateEnd=' + formatDate(end, 'YYYY-MM-DD');
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);
