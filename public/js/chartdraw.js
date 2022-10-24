@@ -1,228 +1,233 @@
-$.ajax({
-    type: 'GET',
-    url: '/gmvgrowth',
-    success: function(res) {
-        Highcharts.chart('column-chart', {
-            chart: {
-                zoomType: 'xy',
-                marginBottom: 70,
-                height: (10 / 16 * 80) + '%',
-                style: {
-                    fontFamily: 'Open Sans',
-                },
-                spacingTop: 60,
-                backgroundColor: '#13173c',
-            },
-            title: {
-                text: 'GMV and transaction growth chart',
-                verticalAlign: 'top',
-                style: {
-                    fontWeight: 'bold',
-                    fontSize: '16px',
-                    color: '#fff',
-                },
-                y: -15,
-                x: -20,
-            },
-            xAxis: [{
-                categories: res.categories,
-                crosshair: true,
-                style: {
-                    color: '#fff',
-                }
-            }],
-            colors: ['#159e5c', '#1174d7'],
-            tooltip: {
-                shared: true
-            },
-            yAxis: [{ // Primary yAxis
-                labels: {
-                    format: '{value}M',
-
-                },
-                title: {
-                    text: 'GMV (VND)',
+function gvmvGrowth(query = '') {
+    $.ajax({
+        type: 'GET',
+        url: '/gmvgrowth' + query,
+        success: function(res) {
+            Highcharts.chart('column-chart', {
+                chart: {
+                    zoomType: 'xy',
+                    marginBottom: 70,
+                    height: (10 / 16 * 80) + '%',
                     style: {
-                        color: '#fff',
-                        fontWeight: 'bold',
-                    }
-                }
-            }, { // Secondary yAxis
-                title: {
-                    text: 'Transactions',
-                    style: {
-                        color: '#fff',
-                        fontWeight: 'bold',
-                    }
-                },
-                labels: {
-                    format: '{value}',
-                    style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
-                },
-                opposite: true
-            }],
-            legend: {
-                layout: 'horizontal',
-                align: 'top',
-                verticalAlign: 'top',
-                itemMarginTop: 0,
-                itemStyle: {
-                    color: '#fff'
-                }
-            },
-            series: [{
-                name: 'GMV',
-                type: 'column',
-                data: res.columns,
-                tooltip: {
-                    valueSuffix: ' M'
-                }
-
-            }, {
-                name: 'Transactions',
-                yAxis: 1,
-                type: 'spline',
-                data: res.line,
-            }]
-        });
-    }
-})
-
-// Create the chart
-$.ajax({
-    type: 'GET',
-    url: '/gmv-proportion',
-    success: function(res) {
-        console.log(res)
-        Highcharts.chart('chart-pie', {
-            chart: {
-                plotBackgroundColor: '',
-                plotBorderWidth: null,
-                plotShadow: false,
-                height: (10 / 16 * 100) + '%',
-                type: 'pie',
-                // borderRadius: '10px',
-                style: {
-                    fontFamily: 'Open Sans'
-                },
-                spacingTop: 20,
-                backgroundColor: '#13173c'
-            },
-            title: {
-                text: 'The GMV proportion',
-                verticalAlign: 'top',
-                style: {
-                    fontWeight: 'bold',
-                    fontSize: '16px',
-                    color: '#fff',
-                },
-                y: 20,
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-            },
-            accessibility: {
-                point: {
-                    valueSuffix: '%'
-                }
-            },
-            plotOptions: {
-                pie: {
-                    innerSize: '60%',
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        fontFamily: 'Open Sans',
                     },
-                    showInLegend: false
+                    spacingTop: 60,
+                    backgroundColor: '#13173c',
                 },
-            },
-
-            series: [{
-                name: 'GMV Proportion',
-                colorByPoint: true,
-                data: res,
-            }]
-        });
-    }
-})
-
-$.ajax({
-    type: 'get',
-    url: '/trans-status-of-brands',
-    success: function(res) {
-        Highcharts.chart('horizional-barchart', {
-            chart: {
-                type: 'bar',
-                height: (10 / 16 * 80) + '%',
-                style: {
-                    fontFamily: 'Open Sans'
-                },
-                backgroundColor: '#13173c',
-            },
-            title: {
-                text: 'Transaction status by issuing bank and card bank',
-                verticalAlign: 'top',
-                style: {
-                    fontWeight: 'bold',
-                    fontSize: '16px',
-                    color: '#fff',
-                },
-            },
-            xAxis: {
-                categories: res.categories,
-                min: 0,
-                max: 4,
-                scrollbar: {
-                    enabled: true
-                },
-            },
-            yAxis: {
-                min: 0,
-                max: 100,
                 title: {
-                    text: null
-                }
-            },
-            legend: {
-                reversed: true,
-                itemStyle: {
-                    color: '#fff'
-                }
-            },
-            plotOptions: {
-                series: {
-                    stacking: 'normal'
+                    text: 'GMV and transaction growth chart',
+                    verticalAlign: 'top',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
+                    y: -15,
+                    x: -20,
                 },
-                bar: {
-                    dataLabels: {
-                        enabled: true
+                xAxis: [{
+                    categories: res.categories,
+                    crosshair: true,
+                    style: {
+                        color: '#fff',
                     }
-                }
-            },
-            series: [{
-                    'name': 'success',
-                    'data': res.success
+                }],
+                colors: ['#159e5c', '#1174d7'],
+                tooltip: {
+                    shared: true
                 },
-                {
-                    'name': 'cancel',
-                    'data': res.cancel
+                yAxis: [{ // Primary yAxis
+                    labels: {
+                        format: '{value}M',
+
+                    },
+                    title: {
+                        text: 'GMV (VND)',
+                        style: {
+                            color: '#fff',
+                            fontWeight: 'bold',
+                        }
+                    }
+                }, { // Secondary yAxis
+                    title: {
+                        text: 'Transactions',
+                        style: {
+                            color: '#fff',
+                            fontWeight: 'bold',
+                        }
+                    },
+                    labels: {
+                        format: '{value}',
+                        style: {
+                            color: Highcharts.getOptions().colors[0]
+                        }
+                    },
+                    opposite: true
+                }],
+                legend: {
+                    layout: 'horizontal',
+                    align: 'top',
+                    verticalAlign: 'top',
+                    itemMarginTop: 0,
+                    itemStyle: {
+                        color: '#fff'
+                    }
                 },
-                {
-                    'name': 'process',
-                    'data': res.process
+                series: [{
+                    name: 'GMV',
+                    type: 'column',
+                    data: res.columns,
+                    tooltip: {
+                        valueSuffix: ' M'
+                    }
+
+                }, {
+                    name: 'Transactions',
+                    yAxis: 1,
+                    type: 'spline',
+                    data: res.line,
+                }]
+            });
+        }
+    })
+}
+
+function gmvProportion(query = '') {
+    $.ajax({
+        type: 'GET',
+        url: '/gmv-proportion' + query,
+        success: function(res) {
+            console.log(res)
+            Highcharts.chart('chart-pie', {
+                chart: {
+                    plotBackgroundColor: '',
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    height: (10 / 16 * 100) + '%',
+                    type: 'pie',
+                    // borderRadius: '10px',
+                    style: {
+                        fontFamily: 'Open Sans'
+                    },
+                    spacingTop: 20,
+                    backgroundColor: '#13173c'
                 },
-                {
-                    'name': 'other',
-                    'data': res.other
+                title: {
+                    text: 'The GMV proportion',
+                    verticalAlign: 'top',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
+                    y: 20,
                 },
-            ]
-        });
-    }
-})
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                accessibility: {
+                    point: {
+                        valueSuffix: '%'
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        innerSize: '60%',
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        },
+                        showInLegend: false
+                    },
+                },
+
+                series: [{
+                    name: 'GMV Proportion',
+                    colorByPoint: true,
+                    data: res,
+                }]
+            });
+        }
+    })
+}
+
+function statusOfBrand(query = '') {
+    $.ajax({
+        type: 'get',
+        url: '/trans-status-of-brands' + query,
+        success: function(res) {
+            Highcharts.chart('horizional-barchart', {
+                chart: {
+                    type: 'bar',
+                    height: (10 / 16 * 80) + '%',
+                    style: {
+                        fontFamily: 'Open Sans'
+                    },
+                    backgroundColor: '#13173c',
+                },
+                title: {
+                    text: 'Transaction status by issuing bank and card bank',
+                    verticalAlign: 'top',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
+                },
+                xAxis: {
+                    categories: res.categories,
+                    min: 0,
+                    max: 4,
+                    scrollbar: {
+                        enabled: true
+                    },
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: null
+                    }
+                },
+                legend: {
+                    reversed: true,
+                    itemStyle: {
+                        color: '#fff'
+                    }
+                },
+                plotOptions: {
+                    series: {
+                        stacking: 'normal'
+                    },
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                },
+                series: [{
+                        'name': 'success',
+                        'data': res.success
+                    },
+                    {
+                        'name': 'cancel',
+                        'data': res.cancel
+                    },
+                    {
+                        'name': 'process',
+                        'data': res.process
+                    },
+                    {
+                        'name': 'other',
+                        'data': res.other
+                    },
+                ]
+            });
+        }
+    })
+}
 
 function rateTransaction(query = '') {
     $.ajax({
@@ -426,6 +431,9 @@ function errorDetail(query = '') {
 errorDetail();
 issueBank();
 rateTransaction();
+statusOfBrand();
+gmvProportion();
+gvmvGrowth();
 
 var query = '?a=a';
 
@@ -434,6 +442,9 @@ function changeMerchant(sel) {
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);
+    statusOfBrand(query);
+    gmvProportion(query);
+    gvmvGrowth(query);
 }
 
 function changePaymentMethod(sel) {
@@ -441,6 +452,9 @@ function changePaymentMethod(sel) {
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);
+    statusOfBrand(query);
+    gmvProportion(query);
+    gvmvGrowth(query);
 }
 
 function changeBankroll(sel) {
@@ -448,6 +462,9 @@ function changeBankroll(sel) {
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);
+    statusOfBrand(query);
+    gmvProportion(query);
+    gvmvGrowth(query);
 }
 
 function formatDate(date) {

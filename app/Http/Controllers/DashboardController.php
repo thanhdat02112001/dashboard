@@ -105,6 +105,15 @@ class DashboardController extends Controller
         $dates = [];
         $columns = [];
         $line = [];
+
+        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+            $period = new DatePeriod(
+                new DateTime(request()->dateStart),
+                new DateInterval('P1D'),
+                new DateTime(request()->dateEnd)
+           );
+        }
+
         foreach ($period as $dt) {
             array_push($dates, $dt->format('Y-m-d'));
         }
