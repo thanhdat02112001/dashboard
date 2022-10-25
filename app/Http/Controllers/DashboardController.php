@@ -139,11 +139,22 @@ class DashboardController extends Controller
         $pieDatas = [];
         $total_gmv = ReportTransaction::where('dates', Carbon::now()->toDateString())
                                         ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+            $total_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
+                                        ->where($conditions)->where('trans_status', 5)
+                                        ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+        }
         $methods = Method::all();
         foreach ($methods as $method) {
             $method_gmv = ReportTransaction::where('dates', Carbon::now()->toDateString())
             ->where('trans_status', 5)
             ->where($conditions)->where('method_id', $method->id)->sum('total_amount');
+            if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+                $method_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
+                                ->where('trans_status', 5)
+                                ->where($conditions)->where('method_id', $method->id)
+                                ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+            }
             $piedata = [
                 'name' => $method->method,
                 'y' => round($method_gmv * 100 /$total_gmv,2),
@@ -188,6 +199,20 @@ class DashboardController extends Controller
                 ->where($conditions)->where('trans_status', 3)->where('bank_code', $brand->bank_code)->sum('total_amount');
                 $processing_trans_amount = ReportTransaction::where('dates', $today)
                 ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)->sum('total_amount');
+                if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+                    $total_trans_amount = ReportTransaction::where('dates', $today)
+                    ->where($conditions)->where('bank_code', $brand->bank_code)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+                    $success_trans_amount = ReportTransaction::where('dates', $today)
+                    ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+                    $cancel_trans_amount = ReportTransaction::where('dates', $today)
+                    ->where($conditions)->where('trans_status', 3)->where('bank_code', $brand->bank_code)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+                    $processing_trans_amount = ReportTransaction::where('dates', $today)
+                    ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+                }
                 if ($total_trans_amount != 0) {
                     $percent_success = round($success_trans_amount * 100 / $total_trans_amount, 2);
                     $percent_cancel =  round($cancel_trans_amount * 100 / $total_trans_amount, 2);
@@ -228,6 +253,12 @@ class DashboardController extends Controller
         //             ->distinct()->get();
         $brands = DB::table('banks')->select('bank_code')->get()->toArray();
         // dd($brands);
+        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+            $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
+                    ->where($conditions)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
+                    ->distinct()->get();
+        }
         if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
             $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
                     ->where($conditions)
