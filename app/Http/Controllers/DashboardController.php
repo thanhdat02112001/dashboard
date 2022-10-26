@@ -105,6 +105,15 @@ class DashboardController extends Controller
         $dates = [];
         $columns = [];
         $line = [];
+
+        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+            $period = new DatePeriod(
+                new DateTime(request()->dateStart),
+                new DateInterval('P1D'),
+                new DateTime(request()->dateEnd)
+           );
+        }
+
         foreach ($period as $dt) {
             array_push($dates, $dt->format('Y-m-d'));
         }
@@ -208,6 +217,9 @@ class DashboardController extends Controller
                     ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
                     $cancel_trans_amount = ReportTransaction::where('dates', $today)
                     ->where($conditions)->where('trans_status', 3)->where('bank_code', $brand->bank_code)
+                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+                    $processing_trans_amount = ReportTransaction::where('dates', $today)
+                    ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)
                     ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
                     $processing_trans_amount = ReportTransaction::where('dates', $today)
                     ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)
