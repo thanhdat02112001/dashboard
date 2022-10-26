@@ -53,7 +53,6 @@ class DashboardController extends Controller
             ];
             array_push($cardDatas, $tmp_data);
         }
-        // dd($cardDatas);
 
         $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])->get()->toArray();
         $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
@@ -80,6 +79,71 @@ class DashboardController extends Controller
         ];
 
         return view('merchant', compact('merchantData', 'methodData', 'gatewaysData', 'data', 'cardDatas'));
+    }
+
+    public function gmvinfo(Request $request) {
+        $startTime = Carbon::now()->copy()->startOfDay()->toDateTimeString();
+        $endTime = Carbon::now()->toDateTimeString();
+        $prevDay = Carbon::now()->copy()->startOfDay()->subDay()->toDateTimeString();
+        $prevTime = Carbon::now()->subDay()->toDateTimeString();
+
+        $conditions = [];
+        if(isset($request->merchantId) && $request->merchantId != 'null') {
+            $conditions[] = ['merchant_id', $request->merchantId];
+        }
+
+        if(isset($request->payMethod) && $request->payMethod != 'null') {
+            $conditions[] = ['payment_type', $request->payMethod];
+        }
+
+        if(isset($request->gateWay) && $request->gateWay != 'null') {
+            $conditions[] = ['gateway_id', $request->gateWay];
+        }
+        $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->get()->toArray();
+
+        $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->where('trans_status', 5)->get()->toArray();
+        $prev_transactions =  ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        ->where($conditions)->where('trans_status', 5)->get()->toArray();
+        $total_gmv = ReportTransaction::whereBetween('created_at',[$startTime, $endTime] )
+        ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        $gmv_invoice = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
+        $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+        // if(isset($request->dateStart) && $request->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+        //     $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->get()->toArray();
+        //     $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->get()->toArray();
+        //     $prev_transactions =  ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->get()->toArray();
+        //     $total_gmv = ReportTransaction::whereBetween('created_at',[$startTime, $endTime] )
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        //     $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        //     $gmv_invoice = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
+        //     $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+        // }
+
+        $data = [
+            'gmv_okr' => count($total_transactions),
+            'percent_gmv' => count($transactions) * 100 / count($prev_transactions),
+            'total_gmv' => $total_gmv / 1000000,
+            'percent_total_gmv' => $total_gmv * 100/  $prev_total_gmv,
+            'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
+            'percent_avg_gmv' => ($total_gmv / count($transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
+            'gmv_invoice' => $gmv_invoice / 1000000,
+            'gmv_ecom' => $gmv_ecom / 1000000,
+        ];
+
+        return $data;
+
     }
 
     public function gmvGrowth(Request $request)
@@ -364,32 +428,33 @@ class DashboardController extends Controller
         return $data;
     }
 
-    public function errorDetail() {
+    public function errorDetail(Request $request) {
         $conditions = [
             ['trans_status', '<>', 5]
         ];
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
+        if(isset($request->merchantId) && $request->merchantId != 'null') {
+            $conditions[] = ['merchant_id', $request->merchantId];
         }
 
-        if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
+        if(isset($request->payMethod) && $request->payMethod != 'null') {
+            $conditions[] = ['payment_type', $request->payMethod];
         }
 
-        if(isset(request()->gateWay) && request()->gateWay != 'null') {
-            $conditions[] = ['gateway_id', request()->gateWay];
+        if(isset($request->gateWay) && $request->gateWay != 'null') {
+            $conditions[] = ['gateway_id', $request->gateWay];
         }
 
         $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
                         ->groupBy('trans_status')->get();
 
-        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+        if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
             $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
-                        ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
+                        ->whereBetween('dates', [$request->dateStart, $request->dateEnd])
                         ->groupBy('trans_status')->get();
         }
+        // dd($conditions);
         $data = [];
         foreach($status as $item) {
             $data[] = (int)$item->total;
@@ -403,8 +468,8 @@ class DashboardController extends Controller
 
         $conditions = [];
 
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
+        if(isset(request()->merchantId) && request()->merchantId != 'null') {
+            $conditions[] = ['merchant_id', request()->merchantId];
         }
 
         if(isset(request()->payMethod) && request()->payMethod != 'null') {

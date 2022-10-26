@@ -99,6 +99,131 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
     })
 }
 
+function gmv_okr(merchant, dateStart, dateEnd, payment, gateway) {
+    $.ajax({
+        type: 'POST',
+        url: '/gmvinfo',
+        data: {
+            merchantId: merchant,
+            dateStart: dateStart,
+            dateEnd: dateEnd,
+            payMethod: payment,
+            gateWay: gateway,
+        },
+        success: function(res) {
+            $('#total-transaction-volume').text(res.gmv_okr.toFixed(0));
+            $('#total-transaction-percent').text(res.percent_gmv.toFixed(0));
+            $('#total-gmv-volume').text(res.total_gmv.toFixed(0));
+            $('#total-gmv-percent').text(res.percent_total_gmv.toFixed(0));
+            $('#avg-gmv-volume').text(res.avg_gmv.toFixed(0));
+            $('#avg-gmv-percent').text(res.percent_avg_gmv.toFixed(0));
+            $('#gmv-invoice-volume').text(res.percent_avg_gmv.toFixed(0));
+            $('#gmv-website-volume').text(res.gmv_ecom.toFixed(0));
+        }
+    })
+}
+
+function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
+    $.ajax({
+        type: 'POST',
+        url: '/gmvgrowth',
+        data: {
+            merchantId: merchant,
+            dateStart: dateStart,
+            dateEnd: dateEnd,
+            payMethod: payment,
+            gateWay: gateway,
+        },
+        success: function(res) {
+            Highcharts.chart('column-chart', {
+                chart: {
+                    zoomType: 'xy',
+                    marginBottom: 70,
+                    height: (10 / 16 * 80) + '%',
+                    style: {
+                        fontFamily: 'Open Sans',
+                    },
+                    spacingTop: 60,
+                    backgroundColor: '#13173c',
+                },
+                title: {
+                    text: 'GMV and transaction growth chart',
+                    verticalAlign: 'top',
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        color: '#fff',
+                    },
+                    y: -15,
+                    x: -20,
+                },
+                xAxis: [{
+                    categories: res.categories,
+                    crosshair: true,
+                    style: {
+                        color: '#fff',
+                    }
+                }],
+                colors: ['#159e5c', '#1174d7'],
+                tooltip: {
+                    shared: true
+                },
+                yAxis: [{ // Primary yAxis
+                    labels: {
+                        format: '{value}M',
+
+                    },
+                    title: {
+                        text: 'GMV (VND)',
+                        style: {
+                            color: '#fff',
+                            fontWeight: 'bold',
+                        }
+                    }
+                }, { // Secondary yAxis
+                    title: {
+                        text: 'Transactions',
+                        style: {
+                            color: '#fff',
+                            fontWeight: 'bold',
+                        }
+                    },
+                    labels: {
+                        format: '{value}',
+                        style: {
+                            color: Highcharts.getOptions().colors[0]
+                        }
+                    },
+                    opposite: true
+                }],
+                legend: {
+                    layout: 'horizontal',
+                    align: 'top',
+                    verticalAlign: 'top',
+                    itemMarginTop: 0,
+                    itemStyle: {
+                        color: '#fff'
+                    }
+                },
+                series: [{
+                    name: 'GMV',
+                    type: 'column',
+                    data: res.columns,
+                    tooltip: {
+                        valueSuffix: ' M'
+                    }
+
+                }, {
+                    name: 'Transactions',
+                    yAxis: 1,
+                    type: 'spline',
+                    data: res.line,
+                }]
+            });
+        }
+    })
+}
+
 function gmvProportion(merchant, dateStart, dateEnd, payment, gateway) {
     $.ajax({
         type: 'POST',
@@ -533,7 +658,7 @@ function formatDate(date) {
 //     gmvProportion(query);
 //     gvmvGrowth(query);
 // }
-$(".filter-data").change(function () {
+$(".filter-data").change(function() {
     let merchant = $("#select-merchant-summary").find(":selected").val();
     let date = $("#select-time-summary").val().split(' - ');
     let start = formatDate(new Date(date[0]), 'YYYY-MM-DD');
@@ -546,4 +671,5 @@ $(".filter-data").change(function () {
     issueBank(merchant, start, end, payment, gateway);
     rateTransaction(merchant, start, end, payment, gateway);
     errorDetail(merchant, start, end, payment, gateway);
+    gmv_okr(merchant, start, end, payment, gateway);
 });

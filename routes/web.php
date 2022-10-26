@@ -29,4 +29,5 @@ Route::post('trans-status-of-brands', [DashboardController::class, 'transStatusO
 Route::post('/issueBank', [DashboardController::class, 'issueBank']);
 Route::post('/errorDetail', [DashboardController::class, 'errorDetail']);
 Route::post('/rateTransaction', [DashboardController::class, 'rateTransaction']);
+Route::post('/gmvinfo', [DashboardController::class, 'gmvinfo']);
 
