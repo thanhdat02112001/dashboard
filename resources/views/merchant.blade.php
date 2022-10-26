@@ -4,11 +4,7 @@
 
 @section('style')
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    {{-- <link href="{{ asset('css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet"> --}}
-    {{-- <link href="{{ asset('css/plugins/select2/select2.min.css') }}" rel="stylesheet"> --}}
-
     <link rel="stylesheet" href="/css/dashboard_merchant.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 @endsection
 
 @section('content')

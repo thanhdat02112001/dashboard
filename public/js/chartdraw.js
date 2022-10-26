@@ -489,4 +489,7 @@ function changeDate(inp) {
     errorDetail(query);
     issueBank(query);
     rateTransaction(query);
+    statusOfBrand(query);
+    gmvProportion(query);
+    gvmvGrowth(query);
 }

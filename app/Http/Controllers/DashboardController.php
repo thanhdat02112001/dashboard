@@ -66,9 +66,9 @@ class DashboardController extends Controller
         $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
         ->where('trans_status', 5)->sum('total_amount');
         $gmv_invoice = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
-        ->where('trans_status', 5)->where('channel', 2)->sum('total_amount');
+        ->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
         $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
-        ->where('trans_status', 5)->where('channel', 1)->sum('total_amount');
+        ->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
         $data = [
             'gmv_okr' => count($total_transactions),
             'percent_gmv' => count($transactions) * 100 / count($prev_transactions),
