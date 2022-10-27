@@ -16,15 +16,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            MerchantSeeder::class,
-            GatewaySeeder::class,
-            BankSeeder::class,
-            TranStatusSeeder::class,
-            ChannelSeeder::class,
-            MethodSeeder::class,
-        ]);
-        Card::factory()->count(100)->create();
-        ReportTransaction::factory()->count(2000)->create();
+        // $this->call([
+        //     MerchantSeeder::class,
+        //     GatewaySeeder::class,
+        //     BankSeeder::class,
+        //     TranStatusSeeder::class,
+        //     ChannelSeeder::class,
+        //     MethodSeeder::class,
+        // ]);
+        // Card::factory()->count(100)->create();
+        ReportTransaction::factory()->count(80)->create();
     }
 }

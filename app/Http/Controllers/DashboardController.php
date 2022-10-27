@@ -100,6 +100,21 @@ class DashboardController extends Controller
         if(isset($request->gateWay) && $request->gateWay != 'null') {
             $conditions[] = ['gateway_id', $request->gateWay];
         }
+        $card_errors = ReportTransaction::where('trans_status', 3)->where($conditions)->pluck('card_id')->toArray();
+        $cardErrors = array_count_values($card_errors);
+        $cardDatas = [];
+        foreach ($cardErrors as $key => $value){
+            $card = DB::table('cards')->where('id', $key)->first();
+            $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+            $tmp_data = [
+                'card_no' => $card->card_no,
+                'gmv' => $trans_by_card->sum('total_amount'),
+                'trans' => count($trans_by_card->toArray()),
+                'errors' => $value,
+            ];
+            array_push($cardDatas, $tmp_data);
+        }
+
         $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
         ->where($conditions)->get()->toArray();
         $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
@@ -116,6 +131,20 @@ class DashboardController extends Controller
         ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
         if(isset($request->dateStart) && $request->dateStart != 'null' &&($request->dateStart != now()->format('Y-m-d')) && isset(request()->dateEnd) && request()->dateEnd != 'null') {
             if ($request->dateStart == $request->dateEnd) {
+                $card_errors = ReportTransaction::where('trans_status', 3)->where('dates',$request->dateStart)->where($conditions)->pluck('card_id')->toArray();
+                $cardErrors = array_count_values($card_errors);
+                $cardDatas = [];
+                foreach ($cardErrors as $key => $value){
+                    $card = DB::table('cards')->where('id', $key)->first();
+                    $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+                    $tmp_data = [
+                        'card_no' => $card->card_no,
+                        'gmv' => $trans_by_card->sum('total_amount'),
+                        'trans' => count($trans_by_card->toArray()),
+                        'errors' => $value,
+                    ];
+                    array_push($cardDatas, $tmp_data);
+                }
                 $preDay = (new Carbon($request->dateStart))->subDay()->toDateString();
                 $total_transactions = ReportTransaction::where('dates',$request->dateStart)
                 ->where($conditions)->get()->toArray();
@@ -140,6 +169,7 @@ class DashboardController extends Controller
                     'percent_avg_gmv' => ($total_gmv / count($transactions) - $prev_total_gmv / count($prev_transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
                     'gmv_invoice' => $gmv_invoice / 1000000,
                     'gmv_ecom' => $gmv_ecom / 1000000,
+                    'cardErrors' => $cardDatas,
                 ];
 
                 return $data;
@@ -150,6 +180,20 @@ class DashboardController extends Controller
                 $gmv_invoice = ReportTransaction::whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
                 $gmv_ecom = ReportTransaction::whereBetween('created_at',[request()->dateStart, request()->dateEnd])
                 ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+                $card_errors = ReportTransaction::where('trans_status', 3)->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->pluck('card_id')->toArray();
+                $cardErrors = array_count_values($card_errors);
+                $cardDatas = [];
+                foreach ($cardErrors as $key => $value){
+                    $card = DB::table('cards')->where('id', $key)->first();
+                    $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+                    $tmp_data = [
+                        'card_no' => $card->card_no,
+                        'gmv' => $trans_by_card->sum('total_amount'),
+                        'trans' => count($trans_by_card->toArray()),
+                        'errors' => $value,
+                    ];
+                    array_push($cardDatas, $tmp_data);
+                }
             }
             $data = [
                 'gmv_okr' => count($total_transactions),
@@ -157,6 +201,7 @@ class DashboardController extends Controller
                 'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
                 'gmv_invoice' => $gmv_invoice / 1000000,
                 'gmv_ecom' => $gmv_ecom / 1000000,
+                'cardError' => $cardDatas,
             ];
             return $data;
         }
@@ -170,6 +215,7 @@ class DashboardController extends Controller
             'percent_avg_gmv' => ($total_gmv / count($transactions) - $prev_total_gmv / count($prev_transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
             'gmv_invoice' => $gmv_invoice / 1000000,
             'gmv_ecom' => $gmv_ecom / 1000000,
+            'cardError' => $cardDatas,
         ];
 
         return $data;

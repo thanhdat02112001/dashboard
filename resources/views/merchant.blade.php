@@ -176,9 +176,9 @@
                                     $totalGmv = 0;
                                     $totalTrans = 0;
                                 @endphp
-                                <div class="table-overflow">
+                                <div class="table-overflow" id="card-error-1">
                                     @foreach ($cardDatas as $card)
-                                    <tr>
+                                    <tr class="tchild">
                                         <td>{{$card['card_no']}}</td>
                                         <td class="text-right">{{number_format($card['gmv'])}}</td>
                                         <td class="text-right">{{$card['trans']}}</td>
@@ -192,8 +192,8 @@
                                 <tfoot>
                                     <tr>
                                         <th>Total</th>
-                                        <th class="text-right mr-5">{{number_format($totalGmv)}}</th>
-                                        <th class="text-right">{{$totalTrans}}</th>
+                                        <th class="text-right mr-5" id="tb_gmv">{{number_format($totalGmv)}}</th>
+                                        <th class="text-right" id="tb_trans">{{$totalTrans}}</th>
                                     </tr>
                                 </tfoot>
                             </tbody>

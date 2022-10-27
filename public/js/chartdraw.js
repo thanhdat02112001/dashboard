@@ -126,6 +126,22 @@ function gmv_okr(merchant, dateStart, dateEnd, payment, gateway) {
             $('#avg-gmv-volume').text(res.avg_gmv.toFixed(0));
             $('#gmv-invoice-volume').text(res.gmv_invoice.toFixed(0));
             $('#gmv-website-volume').text(res.gmv_ecom.toFixed(0));
+            $(".tchild").remove();
+            let html = '';
+            let totalgmv = 0;
+            let totaltrans = 0;
+            res.cardError.forEach(card => {
+                totalgmv += card['gmv']
+                totaltrans += card['trans']
+                html += `<tr class="tchild">
+                            <td>${card['card_no']}</td>
+                            <td class="text-right">${card['gmv']}</td>
+                            <td class="text-right">${card['trans']}</td>
+                        </tr>`
+            });
+            $("#card-error-1").append(html)
+            $("#tb_gmv").text(totalgmv)
+            $("#tb_trans").text(totaltrans)
         }
     })
 }
