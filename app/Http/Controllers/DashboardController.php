@@ -17,7 +17,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-
         $startTime = Carbon::now()->copy()->startOfDay()->toDateTimeString();
         $endTime = Carbon::now()->toDateTimeString();
         $prevDay = Carbon::now()->copy()->startOfDay()->subDay()->toDateTimeString();
@@ -29,16 +28,16 @@ class DashboardController extends Controller
             $merchantData[$merchant->id] = $merchant->name;
         }
 
-        $methods = Method::all()->toArray();
+        $methods = DB::table('payment_methods')->select('id', 'method')->get()->toArray();
         $methodData = [];
         foreach ($methods as $method) {
-            array_push($methodData, $method['method']);
+            $methodData[$method->id] =  $method->method;
         }
 
-        $gateways = DB::table('gateways')->select('gateway')->get()->toArray();
+        $gateways = DB::table('gateways')->select('id', 'gateway')->get()->toArray();
         $gatewaysData = [];
         foreach ($gateways as $gateway) {
-            array_push($gatewaysData, $gateway->gateway);
+            $gatewaysData[$gateway->id] = $gateway->gateway;
         }
         $card_errors = ReportTransaction::where('trans_status', 3)->pluck('card_id')->toArray();
         $cardErrors = array_count_values($card_errors);
@@ -54,7 +53,6 @@ class DashboardController extends Controller
             ];
             array_push($cardDatas, $tmp_data);
         }
-        // dd($cardDatas);
 
         $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])->get()->toArray();
         $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
@@ -83,215 +81,340 @@ class DashboardController extends Controller
         return view('merchant', compact('merchantData', 'methodData', 'gatewaysData', 'data', 'cardDatas'));
     }
 
-    public function gmvGrowth()
-    {
+    public function gmvinfo(Request $request) {
+        $startTime = Carbon::now()->copy()->startOfDay()->toDateTimeString();
+        $endTime = Carbon::now()->toDateTimeString();
+        $prevDay = Carbon::now()->copy()->startOfDay()->subDay()->toDateTimeString();
+        $prevTime = Carbon::now()->subDay()->toDateTimeString();
+
         $conditions = [];
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
+        if(isset($request->merchantId) && $request->merchantId != 'null') {
+            $conditions[] = ['merchant_id', $request->merchantId];
         }
 
-        if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
+        if(isset($request->payMethod) && $request->payMethod != 'null') {
+            $conditions[] = ['payment_type', $request->payMethod];
         }
 
-        if(isset(request()->gateWay) && request()->gateWay != 'null') {
-            $conditions[] = ['gateway_id', request()->gateWay];
+        if(isset($request->gateWay) && $request->gateWay != 'null') {
+            $conditions[] = ['gateway_id', $request->gateWay];
         }
+        $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->get()->toArray();
 
-        $startMonth = Carbon::now()->copy()->startOfMonth();
-        $today = Carbon::now();
-        $interval = DateInterval::createFromDateString(('1 day'));
-        $period = new DatePeriod($startMonth, $interval, $today);
+        $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->where('trans_status', 5)->get()->toArray();
+        $prev_transactions =  ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        ->where($conditions)->where('trans_status', 5)->get()->toArray();
+        $total_gmv = ReportTransaction::whereBetween('created_at',[$startTime, $endTime] )
+        ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        $gmv_invoice = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
+        $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+        // if(isset($request->dateStart) && $request->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+        //     $total_transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->get()->toArray();
+        //     $transactions = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->get()->toArray();
+        //     $prev_transactions =  ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->get()->toArray();
+        //     $total_gmv = ReportTransaction::whereBetween('created_at',[$startTime, $endTime] )
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        //     $prev_total_gmv  = ReportTransaction::whereBetween('created_at', [$prevDay, $prevTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->sum('total_amount');
+        //     $gmv_invoice = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
+        //     $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
+        //     ->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+        // }
+
+        $data = [
+            'gmv_okr' => count($total_transactions),
+            'percent_gmv' => count($transactions) * 100 / count($prev_transactions),
+            'total_gmv' => $total_gmv / 1000000,
+            'percent_total_gmv' => $total_gmv * 100/  $prev_total_gmv,
+            'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
+            'percent_avg_gmv' => ($total_gmv / count($transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
+            'gmv_invoice' => $gmv_invoice / 1000000,
+            'gmv_ecom' => $gmv_ecom / 1000000,
+        ];
+
+        return $data;
+
+    }
+
+    public function gmvGrowth(Request $request)
+    {
         $dates = [];
+        $transactions = $this->successTrans;
+        foreach ($transactions as $key => $trans) {
+            if (isset($request->merchantId) && $request->merchantId != null) {
+                if ($trans->merchant_id != $request->merchantId){
+                    unset($transactions[$key]);
+                }
+            }
+            if (isset($request->payMethod) && $request->payMethod != null) {
+                if ($trans->method_id != $request->payMethod){
+                    unset($transactions[$key]);
+                }
+            }
+            if (isset($request->gateWay) && $request->gateWay != null) {
+                if ($trans->gateway_id != $request->gateWay){
+                    unset($transactions[$key]);
+                }
+            }
+            if(isset($request->dateStart) && $request->dateStart != 'null' && ($request->dateStart != now()->format('Y-m-d')) && isset($request->dateEnd) && $request->dateEnd != 'null') {
+
+                $period = new DatePeriod(
+                    new DateTime($request->dateStart),
+                    new DateInterval('P1D'),
+                    new DateTime($request->dateEnd)
+                );
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
+                }
+            } else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
+                }
+            }
+        }
+        $datas = $transactions->groupBy('dates');
+        $categories = [];
         $columns = [];
         $line = [];
-
-        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-            $period = new DatePeriod(
-                new DateTime(request()->dateStart),
-                new DateInterval('P1D'),
-                new DateTime(request()->dateEnd)
-           );
-        }
-
-        foreach ($period as $dt) {
-            array_push($dates, $dt->format('Y-m-d'));
-        }
-
-        foreach ($dates as $date) {
-            $transPerDay = ReportTransaction::where('dates', $date)
-                                ->where($conditions)->where('trans_status', 5)->get();
-            $amountPerDay = ReportTransaction::where('dates', $date)
-                                ->where($conditions)->where('trans_status', 5)->sum('total_amount');
-
-            array_push($columns, (int)$amountPerDay /1000000);
-            array_push($line, count($transPerDay));
+        foreach ($datas as $key => $value) {
+            array_push($categories, $key);
+            array_push($columns, round((int)$value->sum('total_amount') / 1000000, 2));
+            array_push($line, count($value));
         }
         return response()->json(['columns' => $columns, 'line' => $line, 'categories' => $dates]);
     }
 
-    public function gmvProportion()
+    public function gmvProportion(Request $request)
     {
-        $conditions = [];
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
-        }
-
-        if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
-        }
-
-        if(isset(request()->gateWay) && request()->gateWay != 'null') {
-            $conditions[] = ['gateway_id', request()->gateWay];
-        }
-
-        $pieDatas = [];
-        $total_gmv = ReportTransaction::where('dates', Carbon::now()->toDateString())
-                                        ->where($conditions)->where('trans_status', 5)->sum('total_amount');
-        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-            $total_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
-                                        ->where($conditions)->where('trans_status', 5)
-                                        ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
-        }
-        $methods = Method::all();
-        foreach ($methods as $method) {
-            $method_gmv = ReportTransaction::where('dates', Carbon::now()->toDateString())
-            ->where('trans_status', 5)
-            ->where($conditions)->where('method_id', $method->id)->sum('total_amount');
-            if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-                $method_gmv = ReportTransaction::where('dates', Carbon::now('Asia/Ho_Chi_Minh')->toDateString())
-                                ->where('trans_status', 5)
-                                ->where($conditions)->where('method_id', $method->id)
-                                ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
+        $dates = [];
+        $transactions = $this->successTrans;
+        foreach ($transactions as $key => $trans) {
+            if (isset($request->merchantId) && $request->merchantId != null) {
+                if ($trans->merchant_id != $request->merchantId){
+                    unset($transactions[$key]);
+                }
             }
+            // if (isset($request->payMethod) && $request->payMethod != null) {
+            //     if ($trans->method_id != $request->payMethod){
+            //         unset($transactions[$key]);
+            //     }
+            // }
+            // if (isset($request->gateWay) && $request->gateWay != null) {
+            //     if ($trans->gateway_id != $request->gateWay){
+            //         unset($transactions[$key]);
+            //     }
+            // }
+            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
+                if ($request->dateStart != now()->format('Y-m-d')) {
+                    $period = new DatePeriod(
+                        new DateTime($request->dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($request->dateEnd)
+                    );
+                    foreach ($period as $dt) {
+                        array_push($dates, $dt->format('Y-m-d'));
+                    }
+                    if (!in_array($trans->dates, $dates)) {
+                        unset($transactions[$key]);
+                    }
+                } else {
+                    if ($trans->dates != $request->dateStart) {
+                        unset($transactions[$key]);
+                    }
+                }
+
+            } else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
+                }
+            }
+        }
+        $datas = $transactions->groupBy('method_id');
+        $total_gmv = $transactions->sum('total_amount');
+        $pieDatas = [];
+        foreach ($datas as $key => $value) {
+
             $piedata = [
-                'name' => $method->method,
-                'y' => round($method_gmv * 100 /$total_gmv,2),
-            ];
+                        'name' => Method::find($key)->method,
+                        'y' => round((int)$value->sum('total_amount') * 100 /$total_gmv,2),
+                        ];
             array_push($pieDatas, $piedata);
         }
         return $pieDatas;
     }
 
-    public function transStatusOfBrand()
+    public function transStatusOfBrand(Request $request)
     {
-        $conditions = [];
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
-        }
+        $dates = [];
+        $transactions = ReportTransaction::all();
+        foreach ($transactions as $key => $trans) {
+            if (isset($request->merchantId) && $request->merchantId != null) {
+                if ($trans->merchant_id != $request->merchantId){
+                    unset($transactions[$key]);
+                }
+            }
+            if (isset($request->payMethod) && $request->payMethod != null) {
+                if ($trans->method_id != $request->payMethod){
+                    unset($transactions[$key]);
+                }
+            }
+            if (isset($request->gateWay) && $request->gateWay != null) {
+                if ($trans->gateway_id != $request->gateWay){
+                    unset($transactions[$key]);
+                }
+            }
+            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
+                if ($request->dateStart != now()->format('Y-m-d')) {
+                    $period = new DatePeriod(
+                        new DateTime($request->dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($request->dateEnd)
+                    );
+                    foreach ($period as $dt) {
+                        array_push($dates, $dt->format('Y-m-d'));
+                    }
+                    if (!in_array($trans->dates, $dates)) {
+                        unset($transactions[$key]);
+                    }
+                } else {
+                    if ($trans->dates != $request->dateStart) {
+                        unset($transactions[$key]);
+                    }
+                }
 
-        if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
+            } else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
+                }
+            }
         }
-
-        if(isset(request()->gateWay) && request()->gateWay != 'null') {
-            $conditions[] = ['gateway_id', request()->gateWay];
-        }
-
-        $today =Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
-        $brands = DB::table('reports_transaction')->select("bank_code")
-                    ->where($conditions)->distinct()->get();
+        $datas = $transactions->groupBy('gateway_id');
         $success_rate = [];
         $cancel_rate = [];
         $process_rate = [];
         $other_rate = [];
         $brand_categories = [];
-        foreach ($brands as $brand) {
-            if ($brand->bank_code != "") {
-                array_push($brand_categories, $brand->bank_code);
-
-                $total_trans_amount = ReportTransaction::where('dates', $today)
-                ->where($conditions)->where('bank_code', $brand->bank_code)->sum('total_amount');
-                $success_trans_amount = ReportTransaction::where('dates', $today)
-                ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)->sum('total_amount');
-                $cancel_trans_amount = ReportTransaction::where('dates', $today)
-                ->where($conditions)->where('trans_status', 3)->where('bank_code', $brand->bank_code)->sum('total_amount');
-                $processing_trans_amount = ReportTransaction::where('dates', $today)
-                ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)->sum('total_amount');
-                if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-                    $total_trans_amount = ReportTransaction::where('dates', $today)
-                    ->where($conditions)->where('bank_code', $brand->bank_code)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
-                    $success_trans_amount = ReportTransaction::where('dates', $today)
-                    ->where($conditions)->where('trans_status', 5)->where('bank_code', $brand->bank_code)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
-                    $cancel_trans_amount = ReportTransaction::where('dates', $today)
-                    ->where($conditions)->where('trans_status', 3)->where('bank_code', $brand->bank_code)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
-                    $processing_trans_amount = ReportTransaction::where('dates', $today)
-                    ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
-                    $processing_trans_amount = ReportTransaction::where('dates', $today)
-                    ->where($conditions)->where('trans_status', 2)->where('bank_code', $brand->bank_code)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])->sum('total_amount');
-                }
-                if ($total_trans_amount != 0) {
-                    $percent_success = round($success_trans_amount * 100 / $total_trans_amount, 2);
-                    $percent_cancel =  round($cancel_trans_amount * 100 / $total_trans_amount, 2);
-                    $percent_processing = round($processing_trans_amount * 100 / $total_trans_amount, 2);
-                    $percent_other = round(100 - ($percent_cancel + $percent_processing + $percent_success), 2);
-                    array_push($success_rate, $percent_success);
-                    array_push($cancel_rate, $percent_cancel);
-                    array_push($process_rate, $percent_processing);
-                    array_push($other_rate, $percent_other);
-                }
+        foreach ($datas as $key => $value) {
+            $total_trans_amount = $value->sum('total_amount');
+            $success_trans_amount = $value->where('trans_status', 5)->sum('total_amount');
+            $cancel_trans_amount = $value->where('trans_status', 3)->sum('total_amount');
+            $processing_trans_amount = $value->where('trans_status', 2)->sum('total_amount');
+            if ($total_trans_amount != 0) {
+                $gateway_name = DB::table('gateways')->select('gateway')->where('id', $key)->first();
+                $percent_success = round($success_trans_amount * 100 / $total_trans_amount, 2);
+                $percent_cancel =  round($cancel_trans_amount * 100 / $total_trans_amount, 2);
+                $percent_processing = round($processing_trans_amount * 100 / $total_trans_amount, 2);
+                $percent_other = round(100 - ($percent_cancel + $percent_processing + $percent_success), 2);
+                array_push($success_rate, $percent_success);
+                array_push($cancel_rate, $percent_cancel);
+                array_push($process_rate, $percent_processing);
+                array_push($other_rate, $percent_other);
+                array_push($brand_categories, $gateway_name->gateway);
             }
         }
         return [
-            'categories' => $brand_categories,
-            'success' => $success_rate,
-            'cancel' => $cancel_rate,
-            'process' => $process_rate,
-            'other' => $other_rate,
+                'categories' => $brand_categories,
+                'success' => $success_rate,
+                'cancel' => $cancel_rate,
+                'process' => $process_rate,
+                'other' => $other_rate,
         ];
     }
 
-    public function issueBank() {
-        $conditions = [];
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
-        }
-
-        if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
-        }
-
-        if(isset(request()->gateWay) && request()->gateWay != 'null') {
-            $conditions[] = ['gateway_id', request()->gateWay];
-        }
-
-        // $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
-        //             ->where($conditions)
-        //             ->distinct()->get();
-        $brands = DB::table('banks')->select('bank_code')->get()->toArray();
-        // dd($brands);
-        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-            $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
-                    ->where($conditions)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
-                    ->distinct()->get();
-        }
-        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-            $brands = DB::table('reports_transaction')->select("bank_code", "created_at")
-                    ->where($conditions)
-                    ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
-                    ->distinct()->get();
-        }
-        $data = [];
-        foreach ($brands as $index => $brand) {
-            if ($brand->bank_code != "") {
-                $data[$index]['name'] = $brand->bank_code;
-                if(isset(request()->merchanId) && request()->merchanId != 'null') {
-                    $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)
-                                            ->where($conditions)->sum('total_amount');
+    public function issueBank(Request $request) {
+        $dates = [];
+        $transactions = $this->successTrans;
+        foreach ($transactions as $key => $trans) {
+            if (isset($request->merchantId) && $request->merchantId != null) {
+                if ($trans->merchant_id != $request->merchantId){
+                    unset($transactions[$key]);
                 }
-                else {
-                    $total_trans_amount = ReportTransaction::where('bank_code', $brand->bank_code)->where('dates', Carbon::now()->toDateString())->sum('total_amount');
+            }
+            if (isset($request->payMethod) && $request->payMethod != null) {
+                if ($trans->method_id != $request->payMethod){
+                    unset($transactions[$key]);
                 }
-                $data[$index]['value'] = (int)$total_trans_amount;
+            }
+            if (isset($request->gateWay) && $request->gateWay != null) {
+                if ($trans->gateway_id != $request->gateWay){
+                    unset($transactions[$key]);
+                }
+            }
+            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
+                if ($request->dateStart != now()->format('Y-m-d')) {
+                    $period = new DatePeriod(
+                        new DateTime($request->dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($request->dateEnd)
+                    );
+                    foreach ($period as $dt) {
+                        array_push($dates, $dt->format('Y-m-d'));
+                    }
+                    if (!in_array($trans->dates, $dates)) {
+                        unset($transactions[$key]);
+                    }
+                } else {
+                    if ($trans->dates != $request->dateStart) {
+                        unset($transactions[$key]);
+                    }
+                }
+
+            } else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
+                }
             }
         }
-
+        $datas = $transactions->groupBy('gateway_id');
+        $data = [];
+        foreach ($datas as $key => $value) {
+            $issueBank = [
+                'name' => DB::table('gateways')->select('gateway')->where('id', $key)->first()->gateway,
+                'value' => $value->sum('total_amount'),
+            ];
+            array_push($data, $issueBank);
+        }
         usort($data, function($item1, $item2)
         {
             return $item1['value'] < $item2['value'];
@@ -305,47 +428,48 @@ class DashboardController extends Controller
         return $data;
     }
 
-    public function errorDetail() {
+    public function errorDetail(Request $request) {
         $conditions = [
             ['trans_status', '<>', 5]
         ];
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
+        if(isset($request->merchantId) && $request->merchantId != 'null') {
+            $conditions[] = ['merchant_id', $request->merchantId];
         }
 
-        if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
+        if(isset($request->payMethod) && $request->payMethod != 'null') {
+            $conditions[] = ['payment_type', $request->payMethod];
         }
 
-        if(isset(request()->gateWay) && request()->gateWay != 'null') {
-            $conditions[] = ['gateway_id', request()->gateWay];
+        if(isset($request->gateWay) && $request->gateWay != 'null') {
+            $conditions[] = ['gateway_id', $request->gateWay];
         }
 
         $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
                         ->groupBy('trans_status')->get();
 
-        if(isset(request()->dateStart) && request()->dateStart != 'null' && isset(request()->dateEnd) && request()->dateEnd != 'null') {
+        if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
             $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
-                        ->whereBetween('dates', [request()->dateStart, request()->dateEnd])
+                        ->whereBetween('dates', [$request->dateStart, $request->dateEnd])
                         ->groupBy('trans_status')->get();
         }
+        // dd($conditions);
         $data = [];
         foreach($status as $item) {
             $data[] = (int)$item->total;
         }
         return $data;
     }
-    public function rateTransaction() {
+    public function rateTransaction(Request $request) {
         $formDate = date('Y-m-d', strtotime('-7 days'));
         $toDate = date('Y-m-d', strtotime('1 days'));
         $data = [];
 
         $conditions = [];
 
-        if(isset(request()->merchanId) && request()->merchanId != 'null') {
-            $conditions[] = ['merchant_id', request()->merchanId];
+        if(isset(request()->merchantId) && request()->merchantId != 'null') {
+            $conditions[] = ['merchant_id', request()->merchantId];
         }
 
         if(isset(request()->payMethod) && request()->payMethod != 'null') {
@@ -391,8 +515,6 @@ class DashboardController extends Controller
             $data['success']['date'][] = $item->date;
         }
         $data['success']['name'] = 'Success transaction';
-
         return $data;
-
     }
 }

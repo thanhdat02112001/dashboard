@@ -17,11 +17,10 @@
                     <div class="col-lg-7">
                         <div class="row">
                             <div class="col-lg-6">
-                                {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant', 'placeholder' => 'All Merchant', 'onChange' => 'changeMerchant(this)']) }}
+                                {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant filter-data', 'placeholder' => 'All Merchant']) }}
                             </div>
                             <div class="col-lg-6">
                                 <input class="form-control text-center date-input"
-                                       onchange="changeDate(this)"
                                        id="select-time-summary"
                                        type="text"
                                        name="daterange"
@@ -32,10 +31,10 @@
                     <div class="col-lg-5">
                         <div class="row">
                             <div class="col-lg-6">
-                                {{ Form::select('select-payment-method-summary', $methodData ?? [], null, ['id' => 'select-payment-method-summary', 'class' => 'form-control payment-method-select', 'placeholder' => 'All payment method', 'onchange' => "changePaymentMethod(this)"]) }}
+                                {{ Form::select('select-payment-method-summary', $methodData , null, ['id' => 'select-payment-method-summary', 'class' => 'form-control payment-method-select filter-data', 'placeholder' => 'All payment method', 'onchange' => "changePaymentMethod(this)"]) }}
                             </div>
                             <div class="col-lg-6">
-                                {{ Form::select('select-bankroll-summary', $gatewaysData ?? [], null, ['id' => 'select-bankroll-summary', 'class' => 'form-control bankroll-select', 'placeholder' => 'All gateway', 'onchange' => "changeBankroll(this)"]) }}
+                                {{ Form::select('select-bankroll-summary', $gatewaysData , null, ['id' => 'select-bankroll-summary', 'class' => 'form-control bankroll-select filter-data', 'placeholder' => 'All gateway', 'onchange' => "changeBankroll(this)"]) }}
                             </div>
                         </div>
                     </div>
