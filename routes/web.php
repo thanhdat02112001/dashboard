@@ -23,6 +23,11 @@ Route::get("/user-profile", function(){
 Route::post("/logout", function(){})->name('logout');
 Route::get('dashboard-merchant', function(){})->name('dashboard.merchant');
 Route::get('/dashboard', [DashboardController::class, 'index']);
-Route::get('/gmvgrowth', [DashboardController::class, 'gmvGrowth']);
-Route::get('/gmv-proportion', [DashboardController::class, 'gmvProportion']);
-Route::get('trans-status-of-brands', [DashboardController::class, 'transStatusOfBrand']);
+Route::post('/gmvgrowth', [DashboardController::class, 'gmvGrowth']);
+Route::post('/gmv-proportion', [DashboardController::class, 'gmvProportion']);
+Route::post('trans-status-of-brands', [DashboardController::class, 'transStatusOfBrand']);
+Route::post('/issueBank', [DashboardController::class, 'issueBank']);
+Route::post('/errorDetail', [DashboardController::class, 'errorDetail']);
+Route::post('/rateTransaction', [DashboardController::class, 'rateTransaction']);
+Route::post('/gmvinfo', [DashboardController::class, 'gmvinfo']);
+

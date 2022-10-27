@@ -4,9 +4,6 @@
 
 @section('style')
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    {{-- <link href="{{ asset('css/plugins/datapicker/datepicker3.css') }}" rel="stylesheet"> --}}
-    {{-- <link href="{{ asset('css/plugins/select2/select2.min.css') }}" rel="stylesheet"> --}}
-
     <link rel="stylesheet" href="/css/dashboard_merchant.css">
 @endsection
 
@@ -20,12 +17,10 @@
                     <div class="col-lg-7">
                         <div class="row">
                             <div class="col-lg-6">
-                                {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant', 'placeholder' => 'All Merchant', 'onChange' => 'changeMerchant()']) }}
+                                {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant filter-data', 'placeholder' => 'All Merchant']) }}
                             </div>
                             <div class="col-lg-6">
-                                <input class="form-control text-center date-input"
-                                       onchange="changeDate()"
-                                       readonly="readonly"
+                                <input class="form-control text-center date-input filter-data"
                                        id="select-time-summary"
                                        type="text"
                                        name="daterange"
@@ -36,10 +31,10 @@
                     <div class="col-lg-5">
                         <div class="row">
                             <div class="col-lg-6">
-                                {{ Form::select('select-payment-method-summary', $methodData ?? [], null, ['id' => 'select-payment-method-summary', 'class' => 'form-control payment-method-select', 'placeholder' => 'All payment method', 'onchange' => "changePaymentMethod()"]) }}
+                                {{ Form::select('select-payment-method-summary', $methodData , null, ['id' => 'select-payment-method-summary', 'class' => 'form-control payment-method-select filter-data', 'placeholder' => 'All payment method', 'onchange' => "changePaymentMethod(this)"]) }}
                             </div>
                             <div class="col-lg-6">
-                                {{ Form::select('select-bankroll-summary', $gatewaysData ?? [], null, ['id' => 'select-bankroll-summary', 'class' => 'form-control bankroll-select', 'placeholder' => 'All gateway', 'onchange' => "changeBankroll()"]) }}
+                                {{ Form::select('select-bankroll-summary', $gatewaysData , null, ['id' => 'select-bankroll-summary', 'class' => 'form-control bankroll-select filter-data', 'placeholder' => 'All gateway', 'onchange' => "changeBankroll(this)"]) }}
                             </div>
                         </div>
                     </div>
@@ -59,9 +54,11 @@
                                         <span class="text-light box-info-volume" id="total-transaction-volume">{{ number_format($data['gmv_okr']) }}</span>
                                     </div>
                                     <div>
-                                        <img src="{{ asset('images/up.png') }}" alt="up" class="up-img" id="total-transaction-img">
-                                        <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}%</span>
-                                        <span class="d-none text-light ml-1 time-label"></span>
+                                        @if ($data['percent_gmv'])
+                                        <img src="{{$data['percent_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="total-transaction-img">
+                                        @endif
+                                        <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}</span>
+                                        <span class="text-light time-label">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -72,12 +69,13 @@
                                         <span class="text-light box-info-title">Total GMV</span>
                                     </div>
                                     <div class="py-2">
-                                        <span class="text-light box-info-volume" id="total-gmv-volume">{{ number_format($data['total_gmv']) }} M</span>
+                                        <span class="text-light box-info-volume" id="total-gmv-volume">{{ number_format($data['total_gmv']) }}</span>
+                                        <span class="text-light time-label box-info-volume">M</span>
                                     </div>
                                     <div>
-                                        <img src="{{ asset('images/up.png') }}" alt="up" class="up-img" id="total-gmv-img">
-                                        <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}%</span>
-                                        <span class="d-none text-light ml-1 time-label"></span>
+                                        <img src="{{ $data['percent_total_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png')}}" alt="up" class="up-img" id="total-gmv-img">
+                                        <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}</span>
+                                        <span class="text-light time-label">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -88,12 +86,13 @@
                                         <span class="text-light box-info-title">Avg.GMV</span>
                                     </div>
                                     <div class="py-2">
-                                        <span class="text-light box-info-volume" id="avg-gmv-volume">{{ number_format($data['avg_gmv']) }} M</span>
+                                        <span class="text-light box-info-volume" id="avg-gmv-volume">{{ number_format($data['avg_gmv']) }}</span>
+                                        <span class="text-light time-label box-info-volume">M</span>
                                     </div>
                                     <div>
-                                        <img src="{{ asset('images/up.png') }}" alt="up" class="up-img" id="avg-gmv-img">
-                                        <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}%</span>
-                                        <span class="d-none text-light ml-1 time-label"></span>
+                                        <img src="{{ $data['percent_avg_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="avg-gmv-img">
+                                        <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}</span>
+                                        <span class="text-light time-label">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -139,47 +138,111 @@
                     <div class="col-lg-7">
                         <div class="chart-column">
                             <div class="chart-body">
-                                <div class="col-3 select-time-transaction-grow-chart">
-                                    <div class="form-group">
-                                        <select class="form-control" onchange="columnChart.onChange('column-chart')" id="select-chart-time">
-                                            <option value="this-month" selected="selected">This month</option>
-                                            <option value="last-month">Last month</option>
-                                            <option value="this-year">This year</option>
-                                            <option value="last-year">Last year</option>
-                                        </select>
-                                    </div>
-                                </div>
                                 <figure class="highcharts-figure">
                                     <div id="column-chart"></div>
+                                </figure>
+                                <figure class="highcharts-figure">
+                                    <div id="horizional-barchart"></div>
                                 </figure>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <div class="chart-column">
+                        <div class="chart-right">
                             <div id="chart-pie"></div>
+                            <div id="issue-bank"></div>
                         </div>
                     </div>
-                    <div class="col-lg-7">
-                        <figure class="highcharts-figure">
-                            <div id="horizional-barchart"></div>
-                        </figure>
+                    <div class="col-lg-12">
+                        <div class="rate-trans">
+                            <div id="rate-transaction"></div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3">
-
+                <div class="col-lg-12">
+                    <div class="card-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Card number</th>
+                                    <th>GMV</th>
+                                    <th>Count</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalGmv = 0;
+                                    $totalTrans = 0;
+                                @endphp
+                                <div class="table-overflow">
+                                    @foreach ($cardDatas as $card)
+                                    <tr>
+                                        <td>{{$card['card_no']}}</td>
+                                        <td class="text-right">{{number_format($card['gmv'])}}</td>
+                                        <td class="text-right">{{$card['trans']}}</td>
+                                    </tr>
+                                    @php
+                                        $totalGmv += $card['gmv'];
+                                        $totalTrans += $card['trans'];
+                                    @endphp
+                                    @endforeach
+                                </div>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-right mr-5">{{number_format($totalGmv)}}</th>
+                                        <th class="text-right">{{$totalTrans}}</th>
+                                    </tr>
+                                </tfoot>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Card Number</th>
+                                    <th>Number of errors</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalError = 0;
+                                @endphp
+                                @foreach ($cardDatas as $card)
+                                    <tr>
+                                        <td>{{$card['card_no']}}</td>
+                                        <td class="text-right">{{$card['errors']}}</td>
+                                        @php
+                                            $totalError += $card['errors'];
+                                        @endphp
+                                    </tr>
+                                @endforeach
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-right">{{$totalError}}</th>
+                                    </tr>
+                                </tfoot>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <figure class="highcharts-figure">
+                        <div id="error-detail"></div>
+                    </figure>
+                </div>
             </div>
         </div>
     </div>
 @endsection
 
 @section('script')
-    {{-- <script src="{{ asset('js/plugins/moment/moment.min.js') }}" type="text/javascript"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    {{-- <script src="{{ asset('js/plugins/datapicker/bootstrap-datepicker.js') }}" type="text/javascript"></script> --}}
-    {{-- <script src="{{asset('js/plugins/select2/select2.min.js')}}"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     {{--HIGHT CHART--}}
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -188,85 +251,17 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
 
     {{-- <script src="/js/dashboard_merchant.js"></script> --}}
     <script src="/js/chartdraw.js"></script>
+    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
+    <script src="https://code.highcharts.com/modules/treemap.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
-        let upImgUrl = '{{ asset('images/up.png') }}';
-        let downImgUrl = '{{ asset('images/down.png') }}';
-
-        const formatNumberWithSuffix = (number) => {
-            const ranges = [
-                { divider: 1e18 , suffix: ' E' },
-                { divider: 1e15 , suffix: ' P' },
-                { divider: 1e12 , suffix: ' T' },
-                { divider: 1e9 , suffix: ' G' },
-                { divider: 1e6 , suffix: ' M' },
-                { divider: 1e3 , suffix: ' K' }
-            ];
-
-            for (let i = 0; i < ranges.length; i++) {
-                if (number >= ranges[i].divider) {
-                    return (number / ranges[i].divider).toFixed(2) + ranges[i].suffix;
-                }
-            }
-            return number.toString();
-        }
-
-        // const initElements = async () => {
-        //     $('input[name="daterange"]').daterangepicker(
-        //         {
-        //             opens: 'left',
-        //             locale: {
-        //                 format: 'DD/MM/YYYY',
-        //                 separator: " - ",
-        //             },
-        //             maxDate: moment(),
-        //             ranges: {
-        //                 'Today': [moment(), moment()],
-        //                 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        //                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        //                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        //                 'This Month': [moment().startOf('month'), moment().endOf('month')],
-        //                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        //             }
-        //         }
-        //     );
-
-        //     $('#select-merchant-summary').select2({
-        //         width: '100%',
-        //         allowClear: true,
-        //         placeholder: 'All Merchant'
-        //     })
-        // }
-
-        // const changeMerchant = () => {
-        //     summary.onChange()
-        //     columnChart.onChange('column-chart')
-        // }
-
-        // const changeDate = () => {
-        //     summary.onChange()
-        // }
-
-        // const changePaymentMethod = () => {
-        //     summary.onChange()
-        //     columnChart.onChange('column-chart')
-        // }
-
-        // const changeBankroll = () => {
-        //     summary.onChange()
-        //     columnChart.onChange('column-chart')
-        // }
-
-        // $(document).ready(function() {
-        //     initElements().then(() => {
-        //         $('#select-payment-method-summary').trigger('change')
-        //     })
-        // });
-        // Data retrieved from https://netmarketshare.com/
-
-        // Data retrieved from https://netmarketshare.com/
-
+    $('input[id="select-time-summary"]').daterangepicker();
     </script>
 @endsection
