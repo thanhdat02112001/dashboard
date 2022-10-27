@@ -111,12 +111,16 @@ tfoot {
     right: 0;
     top: 15px;
 }
-
 .chart-column {
     margin-top: 20px;
     padding-top: 15px;
 }
-
+.daterangepicker .calendar-table td.available {
+   color: #000;
+}
+.daterangepicker .calendar-table .table-condensed thead {
+    color: #000;
+ }
 
 /*CICRLE PROGRESS BAR*/
 

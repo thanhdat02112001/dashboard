@@ -111,13 +111,20 @@ function gmv_okr(merchant, dateStart, dateEnd, payment, gateway) {
             gateWay: gateway,
         },
         success: function(res) {
+
             $('#total-transaction-volume').text(res.gmv_okr.toFixed(0));
-            $('#total-transaction-percent').text(res.percent_gmv.toFixed(0));
+            if (res.percent_gmv != null) {
+                $('#total-transaction-percent').text(res.percent_gmv.toFixed(0));
+                $('#total-gmv-percent').text(res.percent_total_gmv.toFixed(0));
+                $('#avg-gmv-percent').text(res.percent_avg_gmv.toFixed(0));
+            } else {
+                $('#total-transaction-percent').text('No data');
+                $('#total-gmv-percent').text('No data');
+                $('#avg-gmv-percent').text('No data');
+            }
             $('#total-gmv-volume').text(res.total_gmv.toFixed(0));
-            $('#total-gmv-percent').text(res.percent_total_gmv.toFixed(0));
             $('#avg-gmv-volume').text(res.avg_gmv.toFixed(0));
-            $('#avg-gmv-percent').text(res.percent_avg_gmv.toFixed(0));
-            $('#gmv-invoice-volume').text(res.percent_avg_gmv.toFixed(0));
+            $('#gmv-invoice-volume').text(res.gmv_invoice.toFixed(0));
             $('#gmv-website-volume').text(res.gmv_ecom.toFixed(0));
         }
     })
@@ -590,48 +597,6 @@ function errorDetail(merchant, dateStart, dateEnd, payment, gateway) {
     })
 }
 
-
-gvmvGrowth();
-
-
-
-
-gmvProportion();
-statusOfBrand();
-issueBank();
-rateTransaction();
-errorDetail();
-
-// function changeMerchant(sel) {
-//     query += '&merchanId=' + sel.value;
-//     errorDetail(query);
-//     issueBank(query);
-//     rateTransaction(query);
-//     statusOfBrand(query);
-//     gmvProportion(query);
-//     gvmvGrowth(query);
-// }
-
-// function changePaymentMethod(sel) {
-//     query += '&payMethod=' + sel.value;
-//     errorDetail(query);
-//     issueBank(query);
-//     rateTransaction(query);
-//     statusOfBrand(query);
-//     gmvProportion(query);
-//     gvmvGrowth(query);
-// }
-
-// function changeBankroll(sel) {
-//     query += '&gateWay=' + sel.value;
-//     errorDetail(query);
-//     issueBank(query);
-//     rateTransaction(query);
-//     statusOfBrand(query);
-//     gmvProportion(query);
-//     gvmvGrowth(query);
-// }
-
 function formatDate(date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
@@ -646,18 +611,6 @@ function formatDate(date) {
     return [year, month, day].join('-');
 }
 
-// function changeDate(inp) {
-//     let date = inp.value.split(' - ');
-//     let start = new Date(date[0]);
-//     let end = new Date(date[1]);
-//     query += '&dateStart=' + formatDate(start, 'YYYY-MM-DD') + '&dateEnd=' + formatDate(end, 'YYYY-MM-DD');
-//     errorDetail(query);
-//     issueBank(query);
-//     rateTransaction(query);
-//     statusOfBrand(query);
-//     gmvProportion(query);
-//     gvmvGrowth(query);
-// }
 $(".filter-data").change(function() {
     let merchant = $("#select-merchant-summary").find(":selected").val();
     let date = $("#select-time-summary").val().split(' - ');
@@ -665,11 +618,11 @@ $(".filter-data").change(function() {
     let end = formatDate(new Date(date[1]), 'YYYY-MM-DD');
     let payment = $("#select-payment-method-summary").find(":selected").val();
     let gateway = $("#select-bankroll-summary").find(":selected").val();
+    gmv_okr(merchant, start, end, payment, gateway);
     gvmvGrowth(merchant, start, end, payment, gateway);
     gmvProportion(merchant, start, end, payment, gateway);
     statusOfBrand(merchant, start, end, payment, gateway);
     issueBank(merchant, start, end, payment, gateway);
     rateTransaction(merchant, start, end, payment, gateway);
     errorDetail(merchant, start, end, payment, gateway);
-    gmv_okr(merchant, start, end, payment, gateway);
 });
