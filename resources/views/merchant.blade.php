@@ -53,12 +53,11 @@
                                     <div class="py-2">
                                         <span class="text-light box-info-volume" id="total-transaction-volume">{{ number_format($data['gmv_okr']) }}</span>
                                     </div>
-                                    <div>
+                                    <div  class="percent">
                                         @if ($data['percent_gmv'])
                                         <img src="{{$data['percent_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="total-transaction-img">
                                         @endif
                                         <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}</span>
-                                        <span class="text-light time-label">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -72,10 +71,9 @@
                                         <span class="text-light box-info-volume" id="total-gmv-volume">{{ number_format($data['total_gmv']) }}</span>
                                         <span class="text-light time-label box-info-volume">M</span>
                                     </div>
-                                    <div>
+                                    <div  class="percent">
                                         <img src="{{ $data['percent_total_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png')}}" alt="up" class="up-img" id="total-gmv-img">
                                         <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}</span>
-                                        <span class="text-light time-label">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -89,10 +87,9 @@
                                         <span class="text-light box-info-volume" id="avg-gmv-volume">{{ number_format($data['avg_gmv']) }}</span>
                                         <span class="text-light time-label box-info-volume">M</span>
                                     </div>
-                                    <div>
+                                    <div class="percent">
                                         <img src="{{ $data['percent_avg_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="avg-gmv-img">
                                         <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}</span>
-                                        <span class="text-light time-label">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +159,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="col-lg-12">
-                    <div class="card-table">
+                    <div class="card-table first-table">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -176,7 +173,7 @@
                                     $totalGmv = 0;
                                     $totalTrans = 0;
                                 @endphp
-                                <div class="table-overflow" id="card-error-1">
+                                <div class="table-overflow">
                                     @foreach ($cardDatas as $card)
                                     <tr class="tchild">
                                         <td>{{$card['card_no']}}</td>
@@ -199,7 +196,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="card-table">
+                    <div class="card-table second-table">
                         <table class="table">
                             <thead>
                                 <tr>

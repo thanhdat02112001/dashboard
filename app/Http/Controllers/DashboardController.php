@@ -94,7 +94,7 @@ class DashboardController extends Controller
         }
 
         if(isset($request->payMethod) && $request->payMethod != 'null') {
-            $conditions[] = ['payment_type', $request->payMethod];
+            $conditions[] = ['method_id', $request->payMethod];
         }
 
         if(isset($request->gateWay) && $request->gateWay != 'null') {
@@ -169,7 +169,7 @@ class DashboardController extends Controller
                     'percent_avg_gmv' => ($total_gmv / count($transactions) - $prev_total_gmv / count($prev_transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
                     'gmv_invoice' => $gmv_invoice / 1000000,
                     'gmv_ecom' => $gmv_ecom / 1000000,
-                    'cardErrors' => $cardDatas,
+                    'cardError' => $cardDatas,
                 ];
 
                 return $data;
@@ -523,7 +523,7 @@ class DashboardController extends Controller
         }
 
         if(isset($request->payMethod) && $request->payMethod != 'null') {
-            $conditions[] = ['payment_type', $request->payMethod];
+            $conditions[] = ['method_id', $request->payMethod];
         }
 
         if(isset($request->gateWay) && $request->gateWay != 'null') {
@@ -547,12 +547,14 @@ class DashboardController extends Controller
                 ->groupBy('trans_status')->get();
             }
         }
-
-        // dd($conditions);
         $data = [];
         foreach($status as $item) {
-            $data[] = (int)$item->total;
+            $data[] = [
+                'total' => $item->total,
+                'trans_status' => $item->trans_status,
+            ];
         }
+        rsort($data);
         return $data;
     }
     public function rateTransaction(Request $request) {
@@ -567,7 +569,7 @@ class DashboardController extends Controller
         }
 
         if(isset(request()->payMethod) && request()->payMethod != 'null') {
-            $conditions[] = ['payment_type', request()->payMethod];
+            $conditions[] = ['method_id', request()->payMethod];
         }
 
         if(isset(request()->gateWay) && request()->gateWay != 'null') {

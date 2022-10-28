@@ -19,13 +19,13 @@ class ReportTransactionFactory extends Factory
         return [
             'dates' => $dateTime->format('Y-m-d'),
             'merchant_id' => rand(1,5),
-            'method_id' => rand(1,6),
+            'method_id' => rand(1,5),
             'gateway_id' => rand(1,8),
             'bank_code' => $this->faker->randomElement(['STB', 'VCB', 'VPB', 'BIDV', 'MB']),
             'channel' => $this->faker->randomElement(['ecom', 'invoice']),
             'trans_status' => rand(1,5),
             'total_amount' => $this->faker->numberBetween(18923, 9999999),
-            'card_id'=>rand(1,100),
+            'card_id'=>rand(1,20),
             'created_at'=>$dateTime->format('Y-m-d H:i:s')
         ];
     }
