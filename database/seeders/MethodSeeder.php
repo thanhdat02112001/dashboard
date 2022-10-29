@@ -14,7 +14,7 @@ class MethodSeeder extends Seeder
      */
     public function run()
     {
-        $methods = ['ATM_CARD', 'CREDIT_CARD', 'WALLET', 'COLLECTION', 'DISBURSEMENT', 'BUY_NOW_PAY_LATER'];
+        $methods = ['BUY_NOW_PAY_LATER', 'LOCAL_DEBIT_CARD', 'INTERNATIONAL_CARD', 'E-WALLET', 'BANK_TRANSFER'];
         foreach($methods as $method) {
             DB::table('payment_methods')->insert(['method' => $method]);
         }

@@ -20,7 +20,7 @@
                                 {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant filter-data', 'placeholder' => 'All Merchant']) }}
                             </div>
                             <div class="col-lg-6">
-                                <input class="form-control text-center date-input"
+                                <input class="form-control text-center date-input filter-data"
                                        id="select-time-summary"
                                        type="text"
                                        name="daterange"
@@ -53,10 +53,11 @@
                                     <div class="py-2">
                                         <span class="text-light box-info-volume" id="total-transaction-volume">{{ number_format($data['gmv_okr']) }}</span>
                                     </div>
-                                    <div>
-                                        <img src="{{ asset('images/up.png') }}" alt="up" class="up-img" id="total-transaction-img">
-                                        <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}%</span>
-                                        <span class="d-none text-light ml-1 time-label"></span>
+                                    <div  class="percent">
+                                        @if ($data['percent_gmv'])
+                                        <img src="{{$data['percent_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="total-transaction-img">
+                                        @endif
+                                        <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -67,12 +68,12 @@
                                         <span class="text-light box-info-title">Total GMV</span>
                                     </div>
                                     <div class="py-2">
-                                        <span class="text-light box-info-volume" id="total-gmv-volume">{{ number_format($data['total_gmv']) }} M</span>
+                                        <span class="text-light box-info-volume" id="total-gmv-volume">{{ number_format($data['total_gmv']) }}</span>
+                                        <span class="text-light time-label box-info-volume">M</span>
                                     </div>
-                                    <div>
-                                        <img src="{{ asset('images/up.png') }}" alt="up" class="up-img" id="total-gmv-img">
-                                        <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}%</span>
-                                        <span class="d-none text-light ml-1 time-label"></span>
+                                    <div  class="percent">
+                                        <img src="{{ $data['percent_total_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png')}}" alt="up" class="up-img" id="total-gmv-img">
+                                        <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -83,12 +84,12 @@
                                         <span class="text-light box-info-title">Avg.GMV</span>
                                     </div>
                                     <div class="py-2">
-                                        <span class="text-light box-info-volume" id="avg-gmv-volume">{{ number_format($data['avg_gmv']) }} M</span>
+                                        <span class="text-light box-info-volume" id="avg-gmv-volume">{{ number_format($data['avg_gmv']) }}</span>
+                                        <span class="text-light time-label box-info-volume">M</span>
                                     </div>
-                                    <div>
-                                        <img src="{{ asset('images/up.png') }}" alt="up" class="up-img" id="avg-gmv-img">
-                                        <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}%</span>
-                                        <span class="d-none text-light ml-1 time-label"></span>
+                                    <div class="percent">
+                                        <img src="{{ $data['percent_avg_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="avg-gmv-img">
+                                        <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -134,16 +135,6 @@
                     <div class="col-lg-7">
                         <div class="chart-column">
                             <div class="chart-body">
-                                <div class="col-3 select-time-transaction-grow-chart">
-                                    <div class="form-group">
-                                        <select class="form-control" onchange="columnChart.onChange('column-chart')" id="select-chart-time">
-                                            <option value="this-month" selected="selected">This month</option>
-                                            <option value="last-month">Last month</option>
-                                            <option value="this-year">This year</option>
-                                            <option value="last-year">Last year</option>
-                                        </select>
-                                    </div>
-                                </div>
                                 <figure class="highcharts-figure">
                                     <div id="column-chart"></div>
                                 </figure>
@@ -168,7 +159,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="col-lg-12">
-                    <div class="card-table">
+                    <div class="card-table first-table">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -184,9 +175,9 @@
                                 @endphp
                                 <div class="table-overflow">
                                     @foreach ($cardDatas as $card)
-                                    <tr>
+                                    <tr class="tchild">
                                         <td>{{$card['card_no']}}</td>
-                                        <td>{{$card['gmv']}}</td>
+                                        <td class="text-right">{{number_format($card['gmv'])}}</td>
                                         <td class="text-right">{{$card['trans']}}</td>
                                     </tr>
                                     @php
@@ -198,14 +189,14 @@
                                 <tfoot>
                                     <tr>
                                         <th>Total</th>
-                                        <th class="text-right">{{$totalGmv}}</th>
-                                        <th class="text-right">{{$totalTrans}}</th>
+                                        <th class="text-right mr-5" id="tb_gmv">{{number_format($totalGmv)}}</th>
+                                        <th class="text-right" id="tb_trans">{{$totalTrans}}</th>
                                     </tr>
                                 </tfoot>
                             </tbody>
                         </table>
                     </div>
-                    <div class="card-table">
+                    <div class="card-table second-table">
                         <table class="table">
                             <thead>
                                 <tr>
