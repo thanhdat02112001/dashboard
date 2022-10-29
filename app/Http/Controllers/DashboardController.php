@@ -129,82 +129,6 @@ class DashboardController extends Controller
         ->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
         $gmv_ecom = ReportTransaction::whereBetween('created_at', [$startTime, $endTime])
         ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
-        if(isset($request->dateStart) && $request->dateStart != 'null' &&($request->dateStart != now()->format('Y-m-d')) && isset(request()->dateEnd) && request()->dateEnd != 'null') {
-            if ($request->dateStart == $request->dateEnd) {
-                $card_errors = ReportTransaction::where('trans_status', 3)->where('dates',$request->dateStart)->where($conditions)->pluck('card_id')->toArray();
-                $cardErrors = array_count_values($card_errors);
-                $cardDatas = [];
-                foreach ($cardErrors as $key => $value){
-                    $card = DB::table('cards')->where('id', $key)->first();
-                    $trans_by_card = ReportTransaction::where('card_id', $key)->get();
-                    $tmp_data = [
-                        'card_no' => $card->card_no,
-                        'gmv' => $trans_by_card->sum('total_amount'),
-                        'trans' => count($trans_by_card->toArray()),
-                        'errors' => $value,
-                    ];
-                    array_push($cardDatas, $tmp_data);
-                }
-                $preDay = (new Carbon($request->dateStart))->subDay()->toDateString();
-                $total_transactions = ReportTransaction::where('dates',$request->dateStart)
-                ->where($conditions)->get()->toArray();
-                $transactions = ReportTransaction::where('dates',$request->dateStart)
-                ->where($conditions)->where('trans_status', 5)->get()->toArray();
-                $prev_transactions =  ReportTransaction::where('dates',$preDay)
-                ->where($conditions)->where('trans_status', 5)->get()->toArray();
-                $total_gmv = ReportTransaction::where('dates',$request->dateStart)
-                ->where($conditions)->where('trans_status', 5)->sum('total_amount');
-                $prev_total_gmv  = ReportTransaction::where('dates',$preDay)
-                ->where($conditions)->where('trans_status', 5)->sum('total_amount');
-                $gmv_invoice = ReportTransaction::where('dates',$request->dateStart)
-                ->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
-                $gmv_ecom = ReportTransaction::where('dates',$request->dateStart)
-                ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
-                $data = [
-                    'gmv_okr' => count($total_transactions),
-                    'percent_gmv' => (count($transactions) - count($prev_transactions)) * 100 / count($prev_transactions),
-                    'total_gmv' => $total_gmv / 1000000,
-                    'percent_total_gmv' => ($total_gmv - $prev_total_gmv) * 100/  $prev_total_gmv,
-                    'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
-                    'percent_avg_gmv' => ($total_gmv / count($transactions) - $prev_total_gmv / count($prev_transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
-                    'gmv_invoice' => $gmv_invoice / 1000000,
-                    'gmv_ecom' => $gmv_ecom / 1000000,
-                    'cardError' => $cardDatas,
-                ];
-
-                return $data;
-            } else {
-                $total_transactions = ReportTransaction::whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->get()->toArray();
-                $transactions = ReportTransaction::whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->get()->toArray();
-                $total_gmv = ReportTransaction::whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->sum('total_amount');
-                $gmv_invoice = ReportTransaction::whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
-                $gmv_ecom = ReportTransaction::whereBetween('created_at',[request()->dateStart, request()->dateEnd])
-                ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
-                $card_errors = ReportTransaction::where('trans_status', 3)->whereBetween('created_at', [request()->dateStart, request()->dateEnd])->where($conditions)->pluck('card_id')->toArray();
-                $cardErrors = array_count_values($card_errors);
-                $cardDatas = [];
-                foreach ($cardErrors as $key => $value){
-                    $card = DB::table('cards')->where('id', $key)->first();
-                    $trans_by_card = ReportTransaction::where('card_id', $key)->get();
-                    $tmp_data = [
-                        'card_no' => $card->card_no,
-                        'gmv' => $trans_by_card->sum('total_amount'),
-                        'trans' => count($trans_by_card->toArray()),
-                        'errors' => $value,
-                    ];
-                    array_push($cardDatas, $tmp_data);
-                }
-            }
-            $data = [
-                'gmv_okr' => count($total_transactions),
-                'total_gmv' => $total_gmv / 1000000,
-                'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
-                'gmv_invoice' => $gmv_invoice / 1000000,
-                'gmv_ecom' => $gmv_ecom / 1000000,
-                'cardError' => $cardDatas,
-            ];
-            return $data;
-        }
 
         $data = [
             'gmv_okr' => count($total_transactions),
@@ -218,6 +142,103 @@ class DashboardController extends Controller
             'cardError' => $cardDatas,
         ];
 
+        if($request->time == null || $request->time == 0) {
+            if($request->time == null) {
+                $dateStart = date('Y-m-d');
+            }
+            else {
+                $dateStart = date('Y-m-d',strtotime("-1 days"));
+            }
+            $card_errors = ReportTransaction::where('trans_status', 3)->where('dates',$dateStart)->where($conditions)->pluck('card_id')->toArray();
+            $cardErrors = array_count_values($card_errors);
+            $cardDatas = [];
+            foreach ($cardErrors as $key => $value){
+                $card = DB::table('cards')->where('id', $key)->first();
+                $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+                $tmp_data = [
+                    'card_no' => $card->card_no,
+                    'gmv' => $trans_by_card->sum('total_amount'),
+                    'trans' => count($trans_by_card->toArray()),
+                    'errors' => $value,
+                ];
+                array_push($cardDatas, $tmp_data);
+            }
+            $preDay = (new Carbon($dateStart))->subDay()->toDateString();
+            $total_transactions = ReportTransaction::where('dates',$dateStart)
+            ->where($conditions)->get()->toArray();
+            $transactions = ReportTransaction::where('dates',$dateStart)
+            ->where($conditions)->where('trans_status', 5)->get()->toArray();
+            $prev_transactions =  ReportTransaction::where('dates',$preDay)
+            ->where($conditions)->where('trans_status', 5)->get()->toArray();
+            $total_gmv = ReportTransaction::where('dates',$dateStart)
+            ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+            $prev_total_gmv  = ReportTransaction::where('dates',$preDay)
+            ->where($conditions)->where('trans_status', 5)->sum('total_amount');
+            $gmv_invoice = ReportTransaction::where('dates',$dateStart)
+            ->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
+            $gmv_ecom = ReportTransaction::where('dates',$dateStart)
+            ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+            $data = [
+                'gmv_okr' => count($total_transactions),
+                'percent_gmv' => (count($transactions) - count($prev_transactions)) * 100 / count($prev_transactions),
+                'total_gmv' => $total_gmv / 1000000,
+                'percent_total_gmv' => ($total_gmv - $prev_total_gmv) * 100/  $prev_total_gmv,
+                'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
+                'percent_avg_gmv' => ($total_gmv / count($transactions) - $prev_total_gmv / count($prev_transactions) )* 100 / ($prev_total_gmv / count($prev_transactions)),
+                'gmv_invoice' => $gmv_invoice / 1000000,
+                'gmv_ecom' => $gmv_ecom / 1000000,
+                'cardError' => $cardDatas,
+            ];
+
+            return $data;
+        }
+        else {
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+            $total_transactions = ReportTransaction::whereBetween('created_at', [$dateStart, $dateEnd])->where($conditions)->get()->toArray();
+            $transactions = ReportTransaction::whereBetween('created_at', [$dateStart, $dateEnd])->where($conditions)->where('trans_status', 5)->get()->toArray();
+            $total_gmv = ReportTransaction::whereBetween('created_at', [$dateStart, $dateEnd])->where($conditions)->where('trans_status', 5)->sum('total_amount');
+            $gmv_invoice = ReportTransaction::whereBetween('created_at', [$dateStart, $dateEnd])->where($conditions)->where('trans_status', 5)->where('channel', 'invoice')->sum('total_amount');
+            $gmv_ecom = ReportTransaction::whereBetween('created_at',[$dateStart, $dateEnd])
+            ->where($conditions)->where('trans_status', 5)->where('channel', 'ecom')->sum('total_amount');
+            $card_errors = ReportTransaction::where('trans_status', 3)->whereBetween('created_at', [$dateStart, $dateEnd])->where($conditions)->pluck('card_id')->toArray();
+            $cardErrors = array_count_values($card_errors);
+            $cardDatas = [];
+            foreach ($cardErrors as $key => $value){
+                $card = DB::table('cards')->where('id', $key)->first();
+                $trans_by_card = ReportTransaction::where('card_id', $key)->get();
+                $tmp_data = [
+                    'card_no' => $card->card_no,
+                    'gmv' => $trans_by_card->sum('total_amount'),
+                    'trans' => count($trans_by_card->toArray()),
+                    'errors' => $value,
+                ];
+                array_push($cardDatas, $tmp_data);
+            }
+            $data = [
+                'gmv_okr' => count($total_transactions),
+                'total_gmv' => $total_gmv / 1000000,
+                'avg_gmv' => ($total_gmv / count($transactions)) / 1000000,
+                'gmv_invoice' => $gmv_invoice / 1000000,
+                'gmv_ecom' => $gmv_ecom / 1000000,
+                'cardError' => $cardDatas,
+            ];
+            return $data;
+        }
         return $data;
 
     }
@@ -242,36 +263,56 @@ class DashboardController extends Controller
                     unset($transactions[$key]);
                 }
             }
-            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
-                if ($request->dateStart != now()->format('Y-m-d')) {
-                    if ($request->dateStart == $request->dateEnd) {
-                        if ($trans->dates != $request->dateStart) {
-                            unset($transactions[$key]);
-                        }
-                    } else {
-                        $period = new DatePeriod(
-                            new DateTime($request->dateStart),
-                            new DateInterval('P1D'),
-                            new DateTime($request->dateEnd)
-                        );
-                        foreach ($period as $dt) {
-                            array_push($dates, $dt->format('Y-m-d'));
-                        }
-                        if (!in_array($trans->dates, $dates)) {
-                            unset($transactions[$key]);
-                        }
+            $dateStart = null;
+            $dateEnd = null;
+
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+
+            if($request->time != null) {
+                if($request->time == 0) {
+                    if ($trans->dates != date('Y-m-d',strtotime("-1 days"))) {
+                        unset($transactions[$key]);
                     }
-                } else {
-                    $startMonth = Carbon::now()->copy()->startOfMonth();
-                    $today = Carbon::now();
-                    $interval = DateInterval::createFromDateString(('1 day'));
-                    $period = new DatePeriod($startMonth, $interval, $today);
+                }
+                else {
+                    $period = new DatePeriod(
+                        new DateTime($dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($dateEnd)
+                    );
                     foreach ($period as $dt) {
                         array_push($dates, $dt->format('Y-m-d'));
                     }
                     if (!in_array($trans->dates, $dates)) {
                         unset($transactions[$key]);
                     }
+                }
+            }
+            else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
                 }
             }
         }
@@ -307,36 +348,56 @@ class DashboardController extends Controller
             //         unset($transactions[$key]);
             //     }
             // }
-            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
-                if ($request->dateStart != now()->format('Y-m-d')) {
-                    if ($request->dateStart == $request->dateEnd) {
-                        if ($trans->dates != $request->dateStart) {
-                            unset($transactions[$key]);
-                        }
-                    } else {
-                        $period = new DatePeriod(
-                            new DateTime($request->dateStart),
-                            new DateInterval('P1D'),
-                            new DateTime($request->dateEnd)
-                        );
-                        foreach ($period as $dt) {
-                            array_push($dates, $dt->format('Y-m-d'));
-                        }
-                        if (!in_array($trans->dates, $dates)) {
-                            unset($transactions[$key]);
-                        }
+            $dateStart = null;
+            $dateEnd = null;
+
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+
+            if($request->time != null) {
+                if($request->time == 0) {
+                    if ($trans->dates != date('Y-m-d',strtotime("-1 days"))) {
+                        unset($transactions[$key]);
                     }
-                } else {
-                    $startMonth = Carbon::now()->copy()->startOfMonth();
-                    $today = Carbon::now();
-                    $interval = DateInterval::createFromDateString(('1 day'));
-                    $period = new DatePeriod($startMonth, $interval, $today);
+                }
+                else {
+                    $period = new DatePeriod(
+                        new DateTime($dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($dateEnd)
+                    );
                     foreach ($period as $dt) {
                         array_push($dates, $dt->format('Y-m-d'));
                     }
                     if (!in_array($trans->dates, $dates)) {
                         unset($transactions[$key]);
                     }
+                }
+            }
+            else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
                 }
             }
         }
@@ -374,36 +435,58 @@ class DashboardController extends Controller
                     unset($transactions[$key]);
                 }
             }
-            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
-                if ($request->dateStart != now()->format('Y-m-d')) {
-                    if ($request->dateStart == $request->dateEnd) {
-                        if ($trans->dates != $request->dateStart) {
-                            unset($transactions[$key]);
-                        }
-                    } else {
-                        $period = new DatePeriod(
-                            new DateTime($request->dateStart),
-                            new DateInterval('P1D'),
-                            new DateTime($request->dateEnd)
-                        );
-                        foreach ($period as $dt) {
-                            array_push($dates, $dt->format('Y-m-d'));
-                        }
-                        if (!in_array($trans->dates, $dates)) {
-                            unset($transactions[$key]);
-                        }
+
+
+            $dateStart = null;
+            $dateEnd = null;
+
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+
+            if($request->time != null) {
+                if($request->time == 0) {
+                    if ($trans->dates != date('Y-m-d',strtotime("-1 days"))) {
+                        unset($transactions[$key]);
                     }
-                } else {
-                    $startMonth = Carbon::now()->copy()->startOfMonth();
-                    $today = Carbon::now();
-                    $interval = DateInterval::createFromDateString(('1 day'));
-                    $period = new DatePeriod($startMonth, $interval, $today);
+                }
+                else {
+                    $period = new DatePeriod(
+                        new DateTime($dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($dateEnd)
+                    );
                     foreach ($period as $dt) {
                         array_push($dates, $dt->format('Y-m-d'));
                     }
                     if (!in_array($trans->dates, $dates)) {
                         unset($transactions[$key]);
                     }
+                }
+            }
+            else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
                 }
             }
         }
@@ -459,30 +542,38 @@ class DashboardController extends Controller
                     unset($transactions[$key]);
                 }
             }
-            if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
-                if ($request->dateStart != now()->format('Y-m-d')) {
-                    if ($request->dateStart == $request->dateEnd) {
-                        if ($trans->dates != $request->dateStart) {
-                            unset($transactions[$key]);
-                        }
-                    } else {
-                        $period = new DatePeriod(
-                            new DateTime($request->dateStart),
-                            new DateInterval('P1D'),
-                            new DateTime($request->dateEnd)
-                        );
-                        foreach ($period as $dt) {
-                            array_push($dates, $dt->format('Y-m-d'));
-                        }
-                        if (!in_array($trans->dates, $dates)) {
-                            unset($transactions[$key]);
-                        }
+
+            $dateStart = null;
+            $dateEnd = null;
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+
+            if($request->time != null) {
+                if($request->time == 0) {
+                    if ($trans->dates != date('Y-m-d',strtotime("-1 days"))) {
+                        unset($transactions[$key]);
                     }
-                } else {
-                    $startMonth = Carbon::now()->copy()->startOfMonth();
-                    $today = Carbon::now();
-                    $interval = DateInterval::createFromDateString(('1 day'));
-                    $period = new DatePeriod($startMonth, $interval, $today);
+                }
+                else {
+                    $period = new DatePeriod(
+                        new DateTime($dateStart),
+                        new DateInterval('P1D'),
+                        new DateTime($dateEnd)
+                    );
                     foreach ($period as $dt) {
                         array_push($dates, $dt->format('Y-m-d'));
                     }
@@ -491,7 +582,20 @@ class DashboardController extends Controller
                     }
                 }
             }
+            else {
+                $startMonth = Carbon::now()->copy()->startOfMonth();
+                $today = Carbon::now();
+                $interval = DateInterval::createFromDateString(('1 day'));
+                $period = new DatePeriod($startMonth, $interval, $today);
+                foreach ($period as $dt) {
+                    array_push($dates, $dt->format('Y-m-d'));
+                }
+                if (!in_array($trans->dates, $dates)) {
+                    unset($transactions[$key]);
+                }
+            }
         }
+
         $datas = $transactions->groupBy('gateway_id');
         $data = [];
         foreach ($datas as $key => $value) {
@@ -534,19 +638,44 @@ class DashboardController extends Controller
                         ->where($conditions)
                         ->groupBy('trans_status')->get();
 
-        if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
-            if ($request->dateStart == $request->dateEnd) {
-                $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+        $dateStart = null;
+        $dateEnd = null;
+        if($request->time == null) {
+            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
                         ->where($conditions)
-                        ->where('dates', $request->dateStart)
+                        ->where('dates', date("Y-m-d"))
                         ->groupBy('trans_status')->get();
-            } else {
-                $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
-                ->where($conditions)
-                ->whereBetween('dates', [$request->dateStart, $request->dateEnd])
-                ->groupBy('trans_status')->get();
-            }
         }
+        else if($request->time == 0) {
+            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+                        ->where($conditions)
+                        ->where('dates', date('Y-m-d',strtotime("-1 days")))
+                        ->groupBy('trans_status')->get();
+        }         
+        else {
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+
+            $status = DB::table('reports_transaction')->select("trans_status",  DB::raw('count(*) as total'))
+                ->where($conditions)
+                ->whereBetween('dates', [$dateStart, $dateEnd])
+                ->groupBy('trans_status')->get();
+        }
+
         $data = [];
         foreach($status as $item) {
             $data[] = [
@@ -579,40 +708,58 @@ class DashboardController extends Controller
         if(isset(request()->date) && request()->date != 'null') {
             $conditions[] = ['dates',request()->date];
         }
-        if(isset($request->dateStart) && $request->dateStart != 'null' && isset($request->dateEnd) && $request->dateEnd != 'null') {
-            if ($request->dateStart != now()->format('Y-m-d')) {
-                $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                        ->whereBetween('created_at', [$request->dateStart, $request->dateEnd])
-                                        ->where($conditions)
-                                        ->groupBy('date')->get();
-                $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                        ->whereBetween('created_at', [$request->dateStart, $request->dateEnd])
-                                        ->where('trans_status', '<>', 5)
-                                        ->where($conditions)
-                                        ->groupBy('date')->get();
-                $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                                        ->whereBetween('created_at', [$request->dateStart, $request->dateEnd])
-                                        ->where('trans_status', 5)
-                                        ->where($conditions)
-                                        ->groupBy('date')->get();
-            } else {
-                $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                ->whereBetween('created_at', [$formDate, $toDate])
-                ->where($conditions)
-                ->groupBy('date')->get();
-                $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                ->whereBetween('created_at', [$formDate, $toDate])
-                ->where('trans_status', '<>', 5)
-                ->where($conditions)
-                ->groupBy('date')->get();
-                $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
-                ->whereBetween('created_at', [$formDate, $toDate])
-                ->where('trans_status', 5)
-                ->where($conditions)
-                ->groupBy('date')->get();
-            }
-        }
 
+        $dateStart = null;
+        $dateEnd = null;
+
+        if($request->time != null) {
+            if($request->time == 1) {
+                $dateStart = date('Y-m-d', strtotime("-6 days"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 2) {
+                $dateStart = date('Y-m-d',strtotime("-1 months"));
+                $dateEnd = date('Y-m-d', strtotime("+1 days"));
+            }
+            if($request->time == 3) {
+                $dateStart = date('Y-m-01');
+                $dateEnd  = date('Y-m-t');
+            }
+            if($request->time == 4) {
+                $dateStart = date('Y-m-01',strtotime("-1 months"));
+                $dateEnd  = date('Y-m-t', strtotime("-1 months"));
+            }
+            
+            $totalTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                    ->whereBetween('created_at', [$dateStart, $dateEnd])
+                                    ->where($conditions)
+                                    ->groupBy('date')->get();
+            $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                    ->whereBetween('created_at', [$dateStart, $dateEnd])
+                                    ->where('trans_status', '<>', 5)
+                                    ->where($conditions)
+                                    ->groupBy('date')->get();
+            $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+                                    ->whereBetween('created_at', [$dateStart, $dateEnd])
+                                    ->where('trans_status', 5)
+                                    ->where($conditions)
+                                    ->groupBy('date')->get();
+        } else {
+            $totalTransactions =  DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->whereBetween('created_at', [$formDate, $toDate])
+            ->where($conditions)
+            ->groupBy('date')->get();
+            $errorTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->whereBetween('created_at', [$formDate, $toDate])
+            ->where('trans_status', '<>', 5)
+            ->where($conditions)
+            ->groupBy('date')->get();
+            $successTransactions = DB::table('reports_transaction')->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->whereBetween('created_at', [$formDate, $toDate])
+            ->where('trans_status', 5)
+            ->where($conditions)
+            ->groupBy('date')->get();
+        }
         foreach($totalTransactions as $item) {
             $data['total']['data'][] = $item->total;
             $data['total']['date'][] = $item->date;

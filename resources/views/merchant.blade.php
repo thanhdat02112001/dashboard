@@ -25,6 +25,7 @@
                                        type="text"
                                        name="daterange"
                                 />
+                                {{ Form::select('select-date', ['Hôm qua','7 ngày gần nhất', '30 ngày gần nhất', 'Tháng này', 'Tháng trước'] , null, ['id' => 'select-date', 'class' => 'form-control text-center date-input filter-data', 'placeholder' => 'Hôm nay']) }}
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
+function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmvgrowth",
@@ -8,8 +8,9 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
             Highcharts.chart("column-chart", {
                 chart: {
                     zoomType: "xy",
@@ -32,21 +33,18 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
                     y: -15,
                     x: -20,
                 },
-                xAxis: [
-                    {
-                        categories: res.categories,
-                        crosshair: true,
-                        style: {
-                            color: "#fff",
-                        },
+                xAxis: [{
+                    categories: res.categories,
+                    crosshair: true,
+                    style: {
+                        color: "#fff",
                     },
-                ],
+                }, ],
                 colors: ["#159e5c", "#1174d7"],
                 tooltip: {
                     shared: true,
                 },
-                yAxis: [
-                    {
+                yAxis: [{
                         // Primary yAxis
                         labels: {
                             format: "{value}M",
@@ -86,8 +84,7 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
                         color: "#fff",
                     },
                 },
-                series: [
-                    {
+                series: [{
                         name: "GMV",
                         type: "column",
                         data: res.columns,
@@ -107,7 +104,7 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
     });
 }
 
-function gmv_okr(merchant, dateStart, dateEnd, payment, gateway) {
+function gmv_okr(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmvinfo",
@@ -117,15 +114,17 @@ function gmv_okr(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
+            console.log(res);
             $(".percent").show();
             $("#total-transaction-volume").text(res.gmv_okr.toFixed(0));
             if (res.percent_gmv != null) {
                 $("#total-transaction-percent").text(
-                    res.percent_gmv.toFixed(0)+ "%"
+                    res.percent_gmv.toFixed(0) + "%"
                 );
-                $("#total-gmv-percent").text(res.percent_total_gmv.toFixed(0)+ "%");
+                $("#total-gmv-percent").text(res.percent_total_gmv.toFixed(0) + "%");
                 $("#avg-gmv-percent").text(res.percent_avg_gmv.toFixed(0) + "%");
             } else {
                 $(".percent").hide();
@@ -211,7 +210,7 @@ function gmv_okr(merchant, dateStart, dateEnd, payment, gateway) {
     });
 }
 
-function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
+function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmvgrowth",
@@ -221,8 +220,9 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
             Highcharts.chart("column-chart", {
                 chart: {
                     zoomType: "xy",
@@ -245,21 +245,18 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
                     y: -15,
                     x: -20,
                 },
-                xAxis: [
-                    {
-                        categories: res.categories,
-                        crosshair: true,
-                        style: {
-                            color: "#fff",
-                        },
+                xAxis: [{
+                    categories: res.categories,
+                    crosshair: true,
+                    style: {
+                        color: "#fff",
                     },
-                ],
+                }, ],
                 colors: ["#159e5c", "#1174d7"],
                 tooltip: {
                     shared: true,
                 },
-                yAxis: [
-                    {
+                yAxis: [{
                         // Primary yAxis
                         labels: {
                             format: "{value}M",
@@ -299,8 +296,7 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
                         color: "#fff",
                     },
                 },
-                series: [
-                    {
+                series: [{
                         name: "GMV",
                         type: "column",
                         data: res.columns,
@@ -320,7 +316,7 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway) {
     });
 }
 
-function gmvProportion(merchant, dateStart, dateEnd, payment, gateway) {
+function gmvProportion(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmv-proportion",
@@ -330,8 +326,9 @@ function gmvProportion(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
             console.log(res);
             Highcharts.chart("chart-pie", {
                 chart: {
@@ -358,8 +355,7 @@ function gmvProportion(merchant, dateStart, dateEnd, payment, gateway) {
                     y: 20,
                 },
                 tooltip: {
-                    pointFormat:
-                        "{series.name}: <b>{point.percentage:.1f}%</b>",
+                    pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
                 },
                 accessibility: {
                     point: {
@@ -379,19 +375,17 @@ function gmvProportion(merchant, dateStart, dateEnd, payment, gateway) {
                     },
                 },
 
-                series: [
-                    {
-                        name: "GMV Proportion",
-                        colorByPoint: true,
-                        data: res,
-                    },
-                ],
+                series: [{
+                    name: "GMV Proportion",
+                    colorByPoint: true,
+                    data: res,
+                }, ],
             });
         },
     });
 }
 
-function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway) {
+function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/trans-status-of-brands",
@@ -401,8 +395,9 @@ function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
             Highcharts.chart("horizional-barchart", {
                 chart: {
                     type: "bar",
@@ -448,8 +443,7 @@ function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway) {
                         },
                     },
                 },
-                series: [
-                    {
+                series: [{
                         name: "success",
                         data: res.success,
                     },
@@ -471,7 +465,7 @@ function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway) {
     });
 }
 
-function rateTransaction(merchant, dateStart, dateEnd, payment, gateway) {
+function rateTransaction(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/rateTransaction",
@@ -481,8 +475,9 @@ function rateTransaction(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
             var datesTotal = res.total.date,
                 datesSuccess = res.success.date,
                 datesError = res.error.date;
@@ -514,22 +509,21 @@ function rateTransaction(merchant, dateStart, dateEnd, payment, gateway) {
                     y: 70,
                     floating: true,
                     borderWidth: 1,
-                    backgroundColor:
-                        Highcharts.defaultOptions.legend.backgroundColor ||
+                    backgroundColor: Highcharts.defaultOptions.legend.backgroundColor ||
                         "#FFFFFF",
                 },
                 xAxis: {
                     type: "datetime",
                     labels: {
-                        formatter: function () {
+                        formatter: function() {
                             return Highcharts.dateFormat(
                                 "%Y-%m-%d",
                                 this.value
                             );
                         },
                     },
-                    tickPositioner: function () {
-                        return datesTotal.map(function (date) {
+                    tickPositioner: function() {
+                        return datesTotal.map(function(date) {
                             return Date.parse(date);
                         });
                     },
@@ -550,26 +544,25 @@ function rateTransaction(merchant, dateStart, dateEnd, payment, gateway) {
                         fillOpacity: 0.5,
                     },
                 },
-                series: [
-                    {
-                        data: (function () {
-                            return datesTotal.map(function (date, i) {
+                series: [{
+                        data: (function() {
+                            return datesTotal.map(function(date, i) {
                                 return [Date.parse(date), res.total.data[i]];
                             });
                         })(),
                         name: "Total Transaction",
                     },
                     {
-                        data: (function () {
-                            return datesError.map(function (date, i) {
+                        data: (function() {
+                            return datesError.map(function(date, i) {
                                 return [Date.parse(date), res.error.data[i]];
                             });
                         })(),
                         name: "Error Transaction",
                     },
                     {
-                        data: (function () {
-                            return datesSuccess.map(function (date, i) {
+                        data: (function() {
+                            return datesSuccess.map(function(date, i) {
                                 return [Date.parse(date), res.success.data[i]];
                             });
                         })(),
@@ -581,7 +574,7 @@ function rateTransaction(merchant, dateStart, dateEnd, payment, gateway) {
     });
 }
 
-function issueBank(merchant, dateStart, dateEnd, payment, gateway) {
+function issueBank(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/issueBank",
@@ -591,8 +584,9 @@ function issueBank(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (res) {
+        success: function(res) {
             Highcharts.chart("issue-bank", {
                 chart: {
                     type: "treemap",
@@ -607,12 +601,10 @@ function issueBank(merchant, dateStart, dateEnd, payment, gateway) {
                         showInLegend: false,
                     },
                 },
-                series: [
-                    {
-                        // layoutAlgorithm: 'squarified',
-                        data: res,
-                    },
-                ],
+                series: [{
+                    // layoutAlgorithm: 'squarified',
+                    data: res,
+                }, ],
                 title: {
                     text: "GMV by issuing bank",
                     style: {
@@ -626,7 +618,7 @@ function issueBank(merchant, dateStart, dateEnd, payment, gateway) {
     });
 }
 
-function errorDetail(merchant, dateStart, dateEnd, payment, gateway) {
+function errorDetail(merchant, dateStart, dateEnd, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/errorDetail",
@@ -636,8 +628,9 @@ function errorDetail(merchant, dateStart, dateEnd, payment, gateway) {
             dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
+            time: time
         },
-        success: function (response) {
+        success: function(response) {
             errorNames = [];
             errorCounts = [];
             response.forEach((res) => {
@@ -702,13 +695,11 @@ function errorDetail(merchant, dateStart, dateEnd, payment, gateway) {
                 legend: {
                     enabled: false,
                 },
-                series: [
-                    {
-                        name: "Errors",
-                        pointStart: 0,
-                        data: errorCounts,
-                    },
-                ],
+                series: [{
+                    name: "Errors",
+                    pointStart: 0,
+                    data: errorCounts,
+                }, ],
             });
         },
     });
@@ -726,18 +717,19 @@ function formatDate(date) {
     return [year, month, day].join("-");
 }
 
-$(".filter-data").change(function () {
+$(".filter-data").change(function() {
     let merchant = $("#select-merchant-summary").find(":selected").val();
     let date = $("#select-time-summary").val().split(" - ");
     let start = formatDate(new Date(date[0]), "YYYY-MM-DD");
     let end = formatDate(new Date(date[1]), "YYYY-MM-DD");
     let payment = $("#select-payment-method-summary").find(":selected").val();
     let gateway = $("#select-bankroll-summary").find(":selected").val();
-    gmv_okr(merchant, start, end, payment, gateway);
-    gvmvGrowth(merchant, start, end, payment, gateway);
-    gmvProportion(merchant, start, end, payment, gateway);
-    statusOfBrand(merchant, start, end, payment, gateway);
-    issueBank(merchant, start, end, payment, gateway);
-    rateTransaction(merchant, start, end, payment, gateway);
-    errorDetail(merchant, start, end, payment, gateway);
+    let time = $("#select-date").find(":selected").val();
+    gmv_okr(merchant, start, end, payment, gateway, time);
+    gvmvGrowth(merchant, start, end, payment, gateway, time);
+    gmvProportion(merchant, start, end, payment, gateway, time);
+    statusOfBrand(merchant, start, end, payment, gateway, time);
+    issueBank(merchant, start, end, payment, gateway, time);
+    rateTransaction(merchant, start, end, payment, gateway, time);
+    errorDetail(merchant, start, end, payment, gateway, time);
 });
