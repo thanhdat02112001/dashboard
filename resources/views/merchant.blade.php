@@ -20,11 +20,7 @@
                                 {{ Form::select('select-merchant-summary', $merchantData, null, ['id' => 'select-merchant-summary', 'class' => 'form-control select-merchant filter-data', 'placeholder' => 'All Merchant']) }}
                             </div>
                             <div class="col-lg-6">
-                                <input class="form-control text-center date-input filter-data"
-                                       id="select-time-summary"
-                                       type="text"
-                                       name="daterange"
-                                />
+                                
                                 {{ Form::select('select-date', ['Hôm qua','7 ngày gần nhất', '30 ngày gần nhất', 'Tháng này', 'Tháng trước'] , null, ['id' => 'select-date', 'class' => 'form-control text-center date-input filter-data', 'placeholder' => 'Hôm nay']) }}
                             </div>
                         </div>

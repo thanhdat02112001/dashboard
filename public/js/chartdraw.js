@@ -1,11 +1,9 @@
-function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway, time) {
+function gvmvGrowth(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmvgrowth",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -104,14 +102,12 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function gmv_okr(merchant, dateStart, dateEnd, payment, gateway, time) {
+function gmv_okr(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmvinfo",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -210,14 +206,12 @@ function gmv_okr(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway, time) {
+function gvmvGrowth(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmvgrowth",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -316,14 +310,12 @@ function gvmvGrowth(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function gmvProportion(merchant, dateStart, dateEnd, payment, gateway, time) {
+function gmvProportion(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/gmv-proportion",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -385,14 +377,12 @@ function gmvProportion(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway, time) {
+function statusOfBrand(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/trans-status-of-brands",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -465,14 +455,12 @@ function statusOfBrand(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function rateTransaction(merchant, dateStart, dateEnd, payment, gateway, time) {
+function rateTransaction(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/rateTransaction",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -574,14 +562,12 @@ function rateTransaction(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function issueBank(merchant, dateStart, dateEnd, payment, gateway, time) {
+function issueBank(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/issueBank",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -618,14 +604,12 @@ function issueBank(merchant, dateStart, dateEnd, payment, gateway, time) {
     });
 }
 
-function errorDetail(merchant, dateStart, dateEnd, payment, gateway, time) {
+function errorDetail(merchant, payment, gateway, time) {
     $.ajax({
         type: "POST",
         url: "/errorDetail",
         data: {
             merchantId: merchant,
-            dateStart: dateStart,
-            dateEnd: dateEnd,
             payMethod: payment,
             gateWay: gateway,
             time: time
@@ -716,20 +700,24 @@ function formatDate(date) {
 
     return [year, month, day].join("-");
 }
+gmv_okr();
+gvmvGrowth();
+gmvProportion();
+statusOfBrand();
+issueBank();
+rateTransaction();
+errorDetail();
 
 $(".filter-data").change(function() {
     let merchant = $("#select-merchant-summary").find(":selected").val();
-    let date = $("#select-time-summary").val().split(" - ");
-    let start = formatDate(new Date(date[0]), "YYYY-MM-DD");
-    let end = formatDate(new Date(date[1]), "YYYY-MM-DD");
     let payment = $("#select-payment-method-summary").find(":selected").val();
     let gateway = $("#select-bankroll-summary").find(":selected").val();
     let time = $("#select-date").find(":selected").val();
-    gmv_okr(merchant, start, end, payment, gateway, time);
-    gvmvGrowth(merchant, start, end, payment, gateway, time);
-    gmvProportion(merchant, start, end, payment, gateway, time);
-    statusOfBrand(merchant, start, end, payment, gateway, time);
-    issueBank(merchant, start, end, payment, gateway, time);
-    rateTransaction(merchant, start, end, payment, gateway, time);
-    errorDetail(merchant, start, end, payment, gateway, time);
+    gmv_okr(merchant, payment, gateway, time);
+    gvmvGrowth(merchant, payment, gateway, time);
+    gmvProportion(merchant, payment, gateway, time);
+    statusOfBrand(merchant, payment, gateway, time);
+    issueBank(merchant, payment, gateway, time);
+    rateTransaction(merchant, payment, gateway, time);
+    errorDetail(merchant, payment, gateway, time);
 });
