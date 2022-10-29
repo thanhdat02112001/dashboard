@@ -102,6 +102,9 @@ tfoot {
     padding-top: 20px;
     height: 100%;
 }
+.filter-date {
+    width: 10px !important;
+}
 .chart-left::after{
     content: '';
     position: absolute;
