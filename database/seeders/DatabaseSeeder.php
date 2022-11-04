@@ -25,6 +25,6 @@ class DatabaseSeeder extends Seeder
         //     MethodSeeder::class,
         // ]);
         // Card::factory()->count(100)->create();
-        ReportTransaction::factory()->count(120)->create();
+        ReportTransaction::factory()->count(12000)->create();
     }
 }

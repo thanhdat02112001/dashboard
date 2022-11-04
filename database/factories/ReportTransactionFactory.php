@@ -17,7 +17,7 @@ class ReportTransactionFactory extends Factory
     {
         $dateTime = now();
         return [
-            'dates' => $dateTime->format('Y-m-d'),
+            'dates' => $this->faker->dateTimeBetween('2022-01-01', '2022-12-30'),
             'merchant_id' => rand(1,5),
             'method_id' => rand(1,5),
             'gateway_id' => rand(1,8),
@@ -26,7 +26,7 @@ class ReportTransactionFactory extends Factory
             'trans_status' => rand(1,5),
             'total_amount' => $this->faker->numberBetween(18923, 9999999),
             'card_id'=>rand(1,20),
-            'created_at'=>$dateTime->format('Y-m-d H:i:s')
+            'created_at'=>$this->faker->dateTimeBetween('2022-01-01', '2022-12-30')
         ];
     }
 }
