@@ -54,7 +54,7 @@
                                         @if ($data['percent_gmv'])
                                         <img src="{{$data['percent_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="total-transaction-img">
                                         @endif
-                                        <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}</span>
+                                        <span class="box-info-percent" id="total-transaction-percent">{{ number_format($data['percent_gmv']) }}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
                                     </div>
                                     <div  class="percent">
                                         <img src="{{ $data['percent_total_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png')}}" alt="up" class="up-img" id="total-gmv-img">
-                                        <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}</span>
+                                        <span class="box-info-percent" id="total-gmv-percent">{{ number_format($data['percent_total_gmv']) }}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -86,7 +86,7 @@
                                     </div>
                                     <div class="percent">
                                         <img src="{{ $data['percent_avg_gmv'] > 0 ? asset('images/up.png') : asset('images/down.png') }}" alt="up" class="up-img" id="avg-gmv-img">
-                                        <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}</span>
+                                        <span class="box-info-percent" id="avg-gmv-percent">{{ number_format($data['percent_avg_gmv']) }}%</span>
                                     </div>
                                 </div>
                             </div>

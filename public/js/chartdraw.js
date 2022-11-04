@@ -117,13 +117,13 @@ function gmv_okr(merchant, payment, gateway, time) {
             $(".percent").show();
             $("#total-transaction-volume").text(res.gmv_okr.toFixed(0));
             if (res.percent_gmv != null) {
-                $("#total-transaction-percent").text(
-                    res.percent_gmv.toFixed(0) + "%"
-                );
-                $("#total-gmv-percent").text(res.percent_total_gmv.toFixed(0) + "%");
-                $("#avg-gmv-percent").text(res.percent_avg_gmv.toFixed(0) + "%");
+                // $("#total-transaction-percent").text(
+                //     res.percent_gmv.toFixed(0) + "%"
+                // );
+                // $("#total-gmv-percent").text(res.percent_total_gmv.toFixed(0) + "%");
+                // $("#avg-gmv-percent").text(res.percent_avg_gmv.toFixed(0) + "%");
             } else {
-                $(".percent").hide();
+                // $(".percent").hide();
             }
             $("#total-gmv-volume").text(res.total_gmv.toFixed(0));
             $("#avg-gmv-volume").text(res.avg_gmv.toFixed(0));
